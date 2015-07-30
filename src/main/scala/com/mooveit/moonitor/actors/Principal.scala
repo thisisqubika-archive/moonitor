@@ -1,35 +1,35 @@
 package com.mooveit.moonitor.actors
 
 import akka.actor._
-import com.mooveit.moonitor.actors.Agent.RetrieveStatus
-import com.mooveit.moonitor.actors.Principal.Stop
-import com.mooveit.moonitor.dto.AgentConfiguration
-
-import scala.concurrent.duration._
+import com.mooveit.moonitor.actors.Monitor.Check
+import com.mooveit.moonitor.actors.Principal.{StatusUpdated, Stop}
+import com.mooveit.moonitor.actors.Repository.Save
+import com.mooveit.moonitor.dto.{AgentConfiguration, MachineStatus}
 
 class Principal(conf: AgentConfiguration) extends Actor {
 
-  import context.dispatcher
-
   private var agent: ActorRef = _
-  private var scheduledMessages: Cancellable = _
 
   override def preStart() = {
-    agent = context.actorOf(Agent.props(conf.repository))
-    scheduledMessages = context.system.scheduler.
-      schedule(0.second, conf.frequency, agent, RetrieveStatus)
+    agent = context.actorOf(Agent.props(conf.host, conf.frequency))
   }
 
   override def receive = {
+    case StatusUpdated(timestamp, status) =>
+      conf.repository ! Save(timestamp, status)
+      conf.monitor ! Check(conf.host, status)
+
     case Stop =>
-      scheduledMessages.cancel()
-      agent ! PoisonPill
+      agent ! Stop
+      context stop self
   }
 }
 
 object Principal {
 
   def props(conf: AgentConfiguration) = Props(new Principal(conf))
+
+  case class StatusUpdated(timestamp: Long, status: MachineStatus)
 
   case object Stop
 }

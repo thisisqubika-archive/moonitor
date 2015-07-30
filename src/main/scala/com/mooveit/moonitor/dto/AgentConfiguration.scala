@@ -6,4 +6,5 @@ import scala.concurrent.duration.FiniteDuration
 
 case class AgentConfiguration(host: String,
                               repository: ActorRef,
-                              frequency: FiniteDuration)
+                              frequency: FiniteDuration,
+                              monitor: ActorRef)

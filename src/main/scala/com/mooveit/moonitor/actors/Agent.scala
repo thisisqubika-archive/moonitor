@@ -2,21 +2,36 @@ package com.mooveit.moonitor.actors
 
 import java.io.File
 
-import akka.actor.{Actor, ActorRef, Props}
+import akka.actor.{Actor, Cancellable, Props}
 import com.mooveit.moonitor.actors.Agent.RetrieveStatus
-import com.mooveit.moonitor.actors.Repository.Save
+import com.mooveit.moonitor.actors.Principal.{StatusUpdated, Stop}
 import com.mooveit.moonitor.dto.{MachineStatus, PartitionStatus}
 
 import scala.compat.Platform.currentTime
 import scala.concurrent.Future
+import scala.concurrent.duration._
 
-class Agent(repository: ActorRef) extends Actor {
+class Agent(host: String, frequency: FiniteDuration) extends Actor {
 
   import context.dispatcher
 
-  override def receive = {
-    case RetrieveStatus => Future { retrieveInfo } map (st => repository ! Save(currentTime, st))
+  private var updateSchedule: Cancellable = _
+
+  override def preStart() = {
+    updateSchedule = context.system.scheduler.
+      schedule(0.second, frequency, self, RetrieveStatus)
   }
+
+  override def receive = {
+    case RetrieveStatus => Future { retrieveInfo } map updatePrincipal
+
+    case Stop =>
+      updateSchedule.cancel()
+      context stop self
+  }
+
+  def updatePrincipal(status: MachineStatus) =
+    context.parent ! StatusUpdated(currentTime, status)
 
   def retrieveInfo: MachineStatus = {
     val processors = Runtime.getRuntime.availableProcessors()
@@ -24,18 +39,20 @@ class Agent(repository: ActorRef) extends Actor {
     val maxMemoryRaw = Runtime.getRuntime.maxMemory()
     val maxMemory = if (maxMemoryRaw == Long.MaxValue) -1L else maxMemoryRaw
     val totalMemory = Runtime.getRuntime.totalMemory()
-    val roots = File.listRoots()
+    val diskStatus = File.listRoots() map createPartitionStatus
 
-    MachineStatus(processors, memory, maxMemory, totalMemory, roots map createPartitionStatus)
+    MachineStatus(host, processors, memory, maxMemory, totalMemory, diskStatus.toList)
   }
   
-  def createPartitionStatus(f: File): PartitionStatus =
-    PartitionStatus(f.getAbsolutePath, f.getTotalSpace, f.getFreeSpace, f.getUsableSpace)
+  def createPartitionStatus(f: File) = PartitionStatus(
+    f.getAbsolutePath, f.getTotalSpace, f.getFreeSpace, f.getUsableSpace
+  )
 }
 
 object Agent {
 
-  def props(repository: ActorRef) = Props(new Agent(repository))
+  def props(host: String, frequency: FiniteDuration) =
+    Props(new Agent(host, frequency))
 
   case object RetrieveStatus
 }
