@@ -3,19 +3,25 @@ package com.mooveit.moonitor.actors
 import akka.actor.Actor
 import com.mooveit.moonitor.actors.Repository.{Retrieve, Save}
 import com.mooveit.moonitor.dto.MachineStatus
-
-import scala.collection.immutable.TreeMap
+import com.mooveit.moonitor.serialization.JsonSerialization._
+import redis.RedisClient
 
 class Repository extends Actor {
 
-  private var repo = TreeMap[Long, MachineStatus]()
+  import context.dispatcher
+
+  private var repo: RedisClient = _
+
+  override def preStart() = {
+    repo = RedisClient()
+  }
 
   override def receive = {
     case Save(timestamp, status) =>
-      repo += timestamp -> status
-      println(s"Saved: $timestamp - $status")
+      val push = repo.rpush(s"status_${status.host}", status)
+      push map (size => println(s"List size: $size"))
 
-    case Retrieve(from, to) => repo.range(from, to)
+    case Retrieve(host, from, to) => repo.lrange(host, from, to)
   }
 }
 
@@ -23,5 +29,5 @@ object Repository {
 
   case class Save(timestamp: Long, status: MachineStatus)
 
-  case class Retrieve(from: Long, to: Long)
+  case class Retrieve(host: String, from: Int, to: Int)
 }
