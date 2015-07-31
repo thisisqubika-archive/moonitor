@@ -1,4 +1,4 @@
-package com.mooveit.moonitor.dto
+package com.mooveit.moonitor.common.dto
 
 case class MachineStatus(host: String,
                          availableProcessors: Int,

@@ -1,4 +1,4 @@
-package com.mooveit.moonitor.dto
+package com.mooveit.moonitor.common.dto
 
 import akka.actor.ActorRef
 

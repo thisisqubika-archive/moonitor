@@ -1,4 +1,4 @@
-package com.mooveit.moonitor.dto
+package com.mooveit.moonitor.common.dto
 
 case class PartitionStatus(fileSystemRoot: String,
                            totalSpace: Long,

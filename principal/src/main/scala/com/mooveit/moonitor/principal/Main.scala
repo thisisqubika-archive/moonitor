@@ -1,11 +1,11 @@
-package com.mooveit.moonitor
+package com.mooveit.moonitor.principal
 
 import akka.actor.{ActorSystem, Props}
-import com.mooveit.moonitor.actors.Mastermind
+import com.mooveit.moonitor.principal.actors.Mastermind
 
 object Main extends App {
 
-  val system = ActorSystem("moonitor-actor-system")
+  val system = ActorSystem("principal-system")
 
   val mastermind = system.actorOf(Props[Mastermind], "the-mastermind")
 }

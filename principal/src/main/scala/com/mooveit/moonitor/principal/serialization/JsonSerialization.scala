@@ -1,9 +1,8 @@
-package com.mooveit.moonitor.serialization
+package com.mooveit.moonitor.principal.serialization
 
 import akka.util.ByteString
 import argonaut.Argonaut.{casecodec6, _}
-import argonaut._
-import com.mooveit.moonitor.dto.{MachineStatus, PartitionStatus}
+import com.mooveit.moonitor.common.dto.{MachineStatus, PartitionStatus}
 import redis.ByteStringFormatter
 
 object JsonSerialization {

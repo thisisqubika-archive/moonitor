@@ -1,8 +1,8 @@
-package com.mooveit.moonitor.actors
+package com.mooveit.moonitor.principal.actors
 
 import akka.actor.Actor
-import com.mooveit.moonitor.actors.Notifier.FreeMemoryWarning
-import com.mooveit.moonitor.dto.MachineStatus
+import com.mooveit.moonitor.common.dto.MachineStatus
+import com.mooveit.moonitor.principal.actors.Notifier.FreeMemoryWarning
 
 class Notifier extends Actor {
 

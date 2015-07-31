@@ -1,9 +1,9 @@
-package com.mooveit.moonitor.actors
+package com.mooveit.moonitor.principal.actors
 
 import akka.actor.{Actor, ActorRef, Props}
-import com.mooveit.moonitor.actors.Mastermind.{StopAgent, StopAll}
-import com.mooveit.moonitor.actors.Principal.Stop
-import com.mooveit.moonitor.dto.AgentConfiguration
+import com.mooveit.moonitor.common.dto.AgentConfiguration
+import com.mooveit.moonitor.principal.actors.Mastermind.{StopAgent, StopAll}
+import com.mooveit.moonitor.principal.actors.Principal.Stop
 
 import scala.concurrent.duration._
 

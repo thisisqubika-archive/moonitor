@@ -1,11 +1,11 @@
-package com.mooveit.moonitor.actors
+package com.mooveit.moonitor.common.actors
 
 import java.io.File
 
+import akka.actor.SupervisorStrategy.Stop
 import akka.actor.{Actor, Cancellable, Props}
-import com.mooveit.moonitor.actors.Agent.RetrieveStatus
-import com.mooveit.moonitor.actors.Principal.{StatusUpdated, Stop}
-import com.mooveit.moonitor.dto.{MachineStatus, PartitionStatus}
+import com.mooveit.moonitor.common.actors.Agent.{RetrieveStatus, StatusUpdated}
+import com.mooveit.moonitor.common.dto.{MachineStatus, PartitionStatus}
 
 import scala.compat.Platform.currentTime
 import scala.concurrent.Future
@@ -23,7 +23,9 @@ class Agent(host: String, frequency: FiniteDuration) extends Actor {
   }
 
   override def receive = {
-    case RetrieveStatus => Future { retrieveInfo } map updatePrincipal
+    case RetrieveStatus =>
+      println(s"Agent: Received RetrieveStatus from $sender")
+      Future { retrieveInfo } map updatePrincipal
 
     case Stop =>
       updateSchedule.cancel()
@@ -39,9 +41,9 @@ class Agent(host: String, frequency: FiniteDuration) extends Actor {
     val maxMemoryRaw = Runtime.getRuntime.maxMemory()
     val maxMemory = if (maxMemoryRaw == Long.MaxValue) -1L else maxMemoryRaw
     val totalMemory = Runtime.getRuntime.totalMemory()
-    val diskStatus = File.listRoots() map createPartitionStatus
+    val diskStatus = (File.listRoots() map createPartitionStatus).toList
 
-    MachineStatus(host, processors, memory, maxMemory, totalMemory, diskStatus.toList)
+    MachineStatus(host, processors, memory, maxMemory, totalMemory, diskStatus)
   }
   
   def createPartitionStatus(f: File) = PartitionStatus(
@@ -55,4 +57,6 @@ object Agent {
     Props(new Agent(host, frequency))
 
   case object RetrieveStatus
+
+  case class StatusUpdated(timestamp: Long, status: MachineStatus)
 }

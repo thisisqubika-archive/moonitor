@@ -1,9 +1,9 @@
-package com.mooveit.moonitor.actors
+package com.mooveit.moonitor.principal.actors
 
 import akka.actor.{Actor, ActorRef, Props}
-import com.mooveit.moonitor.actors.Monitor.Check
-import com.mooveit.moonitor.actors.Notifier.FreeMemoryWarning
-import com.mooveit.moonitor.dto.MachineStatus
+import com.mooveit.moonitor.common.dto.MachineStatus
+import com.mooveit.moonitor.principal.actors.Monitor.Check
+import com.mooveit.moonitor.principal.actors.Notifier.FreeMemoryWarning
 
 class Monitor(notifier: ActorRef) extends Actor {
 
