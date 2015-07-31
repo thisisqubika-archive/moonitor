@@ -3,8 +3,9 @@ package com.mooveit.moonitor.principal.actors
 import akka.actor.Actor
 import com.mooveit.moonitor.common.dto.MachineStatus
 import com.mooveit.moonitor.principal.actors.Repository.{Retrieve, Save}
-import com.mooveit.moonitor.principal.serialization.JsonSerialization._
 import redis.RedisClient
+
+import com.mooveit.moonitor.principal.serialization.JsonSerialization._
 
 class Repository extends Actor {
 

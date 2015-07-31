@@ -2,7 +2,6 @@ package com.mooveit.moonitor.common.actors
 
 import java.io.File
 
-import akka.actor.SupervisorStrategy.Stop
 import akka.actor.{Actor, Cancellable, Props}
 import com.mooveit.moonitor.common.actors.Agent.{RetrieveStatus, StatusUpdated}
 import com.mooveit.moonitor.common.dto.{MachineStatus, PartitionStatus}
@@ -11,7 +10,7 @@ import scala.compat.Platform.currentTime
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
-class Agent(host: String, frequency: FiniteDuration) extends Actor {
+class Agent(val host: String, val frequency: FiniteDuration) extends Actor {
 
   import context.dispatcher
 
@@ -22,14 +21,14 @@ class Agent(host: String, frequency: FiniteDuration) extends Actor {
       schedule(0.second, frequency, self, RetrieveStatus)
   }
 
+  override def postStop() = {
+    updateSchedule.cancel()
+  }
+
   override def receive = {
     case RetrieveStatus =>
       println(s"Agent: Received RetrieveStatus from $sender")
       Future { retrieveInfo } map updatePrincipal
-
-    case Stop =>
-      updateSchedule.cancel()
-      context stop self
   }
 
   def updatePrincipal(status: MachineStatus) =

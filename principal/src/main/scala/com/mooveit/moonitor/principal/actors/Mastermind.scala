@@ -2,8 +2,6 @@ package com.mooveit.moonitor.principal.actors
 
 import akka.actor.{Actor, ActorRef, Props}
 import com.mooveit.moonitor.common.dto.AgentConfiguration
-import com.mooveit.moonitor.principal.actors.Mastermind.{StopAgent, StopAll}
-import com.mooveit.moonitor.principal.actors.Principal.Stop
 
 import scala.concurrent.duration._
 
@@ -27,16 +25,5 @@ class Mastermind extends Actor {
     }
   }
 
-  override def receive = {
-    case StopAgent(host) => principals.get(host).foreach(_ ! Stop)
-
-    case StopAll => principals.values.foreach(_ ! Stop)
-  }
-}
-
-object Mastermind {
-
-  case class StopAgent(host: String)
-
-  case object StopAll
+  override def receive = ???
 }
