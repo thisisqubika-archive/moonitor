@@ -1,7 +1,7 @@
 package com.mooveit.moonitor.principal
 
 import akka.actor.{ActorSystem, Props}
-import com.mooveit.moonitor.common.dto.AgentConfiguration
+import com.mooveit.moonitor.common.domain.AgentConfiguration
 import com.mooveit.moonitor.principal.actors._
 
 import scala.concurrent.duration._

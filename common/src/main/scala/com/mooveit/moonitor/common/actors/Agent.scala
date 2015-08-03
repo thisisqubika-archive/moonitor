@@ -4,7 +4,7 @@ import java.io.File
 
 import akka.actor.{Actor, Cancellable, Props}
 import com.mooveit.moonitor.common.actors.Agent.{RetrieveStatus, StatusUpdated}
-import com.mooveit.moonitor.common.dto.{MachineStatus, PartitionStatus}
+import com.mooveit.moonitor.common.domain.{MachineStatus, PartitionStatus}
 
 import scala.compat.Platform.currentTime
 import scala.concurrent.Future

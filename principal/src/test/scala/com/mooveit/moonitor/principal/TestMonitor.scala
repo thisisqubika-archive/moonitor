@@ -1,7 +1,7 @@
 package com.mooveit.moonitor.principal
 
 import akka.testkit.{TestActorRef, TestProbe}
-import com.mooveit.moonitor.common.dto.MachineStatus
+import com.mooveit.moonitor.common.domain.MachineStatus
 import com.mooveit.moonitor.principal.actors.Monitor
 import com.mooveit.moonitor.principal.actors.Monitor.Check
 import com.mooveit.moonitor.principal.actors.Notifier.FreeMemoryWarning

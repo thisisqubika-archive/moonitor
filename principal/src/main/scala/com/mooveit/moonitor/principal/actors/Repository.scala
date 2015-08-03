@@ -1,7 +1,7 @@
 package com.mooveit.moonitor.principal.actors
 
 import akka.actor.Actor
-import com.mooveit.moonitor.common.dto.MachineStatus
+import com.mooveit.moonitor.common.domain.MachineStatus
 import com.mooveit.moonitor.principal.actors.Repository.{Retrieve, Save}
 import redis.RedisClient
 

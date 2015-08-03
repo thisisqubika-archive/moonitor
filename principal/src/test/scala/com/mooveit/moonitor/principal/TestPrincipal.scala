@@ -1,7 +1,7 @@
 package com.mooveit.moonitor.principal
 
 import akka.testkit.{TestActorRef, TestProbe}
-import com.mooveit.moonitor.common.dto.AgentConfiguration
+import com.mooveit.moonitor.common.domain.AgentConfiguration
 import com.mooveit.moonitor.principal.actors.Monitor.Check
 import com.mooveit.moonitor.principal.actors.Principal
 import com.mooveit.moonitor.principal.actors.Repository.Save

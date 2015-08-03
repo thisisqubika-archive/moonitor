@@ -11,12 +11,12 @@ lazy val commonSettings = Seq(
     "com.typesafe.akka" %% "akka-testkit" % "2.3.11" % "test")
 )
 
-lazy val data = (project in file("data")).
+lazy val common = (project in file("common")).
   settings(commonSettings: _*).
-  settings(name := "moonitor-data")
+  settings(name := "moonitor-common")
 
 lazy val principal = (project in file("principal")).
-  dependsOn(data).
+  dependsOn(common).
   settings(commonSettings: _*).
   settings(
     name := "moonitor-principal",
@@ -26,6 +26,6 @@ lazy val principal = (project in file("principal")).
   )
 
 lazy val agent = (project in file("agent")).
-  dependsOn(data).
+  dependsOn(common).
   settings(commonSettings: _*).
   settings(name := "moonitor-agent")

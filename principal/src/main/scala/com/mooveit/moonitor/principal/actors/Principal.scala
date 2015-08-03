@@ -3,7 +3,7 @@ package com.mooveit.moonitor.principal.actors
 import akka.actor._
 import com.mooveit.moonitor.common.actors.Agent
 import com.mooveit.moonitor.common.actors.Agent.StatusUpdated
-import com.mooveit.moonitor.common.dto.AgentConfiguration
+import com.mooveit.moonitor.common.domain.AgentConfiguration
 import com.mooveit.moonitor.principal.actors.Monitor.Check
 import com.mooveit.moonitor.principal.actors.Repository.Save
 
