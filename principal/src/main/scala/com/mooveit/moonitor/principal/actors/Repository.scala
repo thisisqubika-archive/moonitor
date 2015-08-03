@@ -22,7 +22,9 @@ class Repository extends Actor {
       val push = repo.rpush(s"status_${status.host}", status)
       push map (size => println(s"List size: $size"))
 
-    case Retrieve(host, from, to) => repo.lrange(host, from, to)
+    case Retrieve(host, from, to) =>
+      val originalSender = sender()
+      repo.lrange(s"status_$host", from, to) map (originalSender ! _)
   }
 }
 

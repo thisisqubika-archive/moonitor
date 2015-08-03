@@ -1,5 +1,3 @@
-resolvers += "rediscala" at "http://dl.bintray.com/etaty/maven"
-
 lazy val commonSettings = Seq(
   organization := "com.mooveit",
   version := "0.1",
@@ -15,6 +13,9 @@ lazy val common = (project in file("common")).
   settings(commonSettings: _*).
   settings(name := "moonitor-common")
 
+resolvers += "rediscala" at "http://dl.bintray.com/etaty/maven"
+val sprayVersion = "1.3.2"
+
 lazy val principal = (project in file("principal")).
   dependsOn(common).
   settings(commonSettings: _*).
@@ -22,7 +23,11 @@ lazy val principal = (project in file("principal")).
     name := "moonitor-principal",
     libraryDependencies ++= Seq(
       "com.etaty.rediscala" %% "rediscala" % "1.4.0",
-      "io.argonaut" %% "argonaut" % "6.0.4")
+      "io.argonaut" %% "argonaut" % "6.0.4",
+      "io.spray" %% "spray-can" % sprayVersion,
+      "io.spray" %% "spray-routing" % sprayVersion,
+      "io.spray" %% "spray-httpx" % sprayVersion,
+      "io.spray" %% "spray-json" % sprayVersion)
   )
 
 lazy val agent = (project in file("agent")).
