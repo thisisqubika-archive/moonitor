@@ -1,0 +1,1 @@
+GET    /status    @controllers.StatusController.all()
