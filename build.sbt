@@ -9,37 +9,20 @@ lazy val commonDependencies = Seq(
     "org.scalatest" %% "scalatest" % "2.2.4" % "test",
     "com.typesafe.akka" %% "akka-testkit" % "2.3.11" % "test")
 
-lazy val common = (project in file("common")).
+lazy val domain = (project in file("domain")).
+  settings(commonSettings: _*).
+  settings(name := "moonitor-common")
+
+lazy val agent = (project in file("agent")).
   settings(commonSettings: _*).
   settings(libraryDependencies ++= commonDependencies).
-  settings(name := "moonitor-common")
+  settings(name := "moonitor-agent")
 
 resolvers += "rediscala" at "http://dl.bintray.com/etaty/maven"
 val sprayVersion = "1.3.2"
 
 lazy val principal = (project in file("principal")).
-  dependsOn(common).
+  dependsOn(domain, agent).
   settings(commonSettings: _*).
   settings(libraryDependencies ++= commonDependencies).
-  settings(
-    name := "moonitor-principal",
-    libraryDependencies ++= Seq(
-      "com.etaty.rediscala" %% "rediscala" % "1.4.0",
-      "io.argonaut" %% "argonaut" % "6.0.4",
-      "io.spray" %% "spray-can" % sprayVersion,
-      "io.spray" %% "spray-routing" % sprayVersion,
-      "io.spray" %% "spray-httpx" % sprayVersion,
-      "io.spray" %% "spray-json" % sprayVersion)
-  )
-
-lazy val agent = (project in file("agent")).
-  dependsOn(common).
-  settings(commonSettings: _*).
-  settings(libraryDependencies ++= commonDependencies).
-  settings(name := "moonitor-agent")
-
-lazy val webapp = (project in file("webapp")).
-  settings(commonSettings: _*).
-  settings(name := "moonitor-webapp",
-  libraryDependencies += "com.typesafe.play" %% "play-ws" % "2.4.2").
-  enablePlugins(PlayScala)
+  settings(name := "moonitor-principal")

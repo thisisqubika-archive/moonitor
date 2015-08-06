@@ -1,22 +1,17 @@
 package com.mooveit.moonitor.principal
 
 import akka.testkit.{TestActorRef, TestProbe}
-import com.mooveit.moonitor.common.domain.AgentConfiguration
-import com.mooveit.moonitor.principal.actors.Monitor.Check
+import com.mooveit.moonitor.domain.metrics.{MaxFiles, MetricValue}
+import com.mooveit.moonitor.principal.actors.Agent.MetricCollected
 import com.mooveit.moonitor.principal.actors.Principal
 import com.mooveit.moonitor.principal.actors.Repository.Save
 import com.mooveit.moonitor.principal.spec.UnitSpec
 
-import scala.concurrent.duration._
-
 class TestPrincipal extends UnitSpec("testPrincipal") {
 
-  val probeRepository = TestProbe()
-  val probeMonitor = TestProbe()
-  val configuration = AgentConfiguration("localhost",
-    probeRepository.ref, 1.second, probeMonitor.ref)
+  val repository = TestProbe()
 
-  val principal = TestActorRef(Principal.props(configuration))
+  val principal = TestActorRef(Principal.props("localhost", repository.ref))
 
   "A principal" when {
     "created" should {
@@ -24,12 +19,10 @@ class TestPrincipal extends UnitSpec("testPrincipal") {
         principal.getChild(Iterator("agent")) shouldNot be(null)
       }
     }
-    "status updated" should {
+    "metric collected" should {
+      principal ! MetricCollected(12345L, MetricValue(MaxFiles, 1))
       "notify repository" in {
-        probeRepository.expectMsgClass(classOf[Save])
-      }
-      "notify monitor" in {
-        probeMonitor.expectMsgClass(classOf[Check])
+        repository.expectMsgClass(classOf[Save])
       }
     }
   }
