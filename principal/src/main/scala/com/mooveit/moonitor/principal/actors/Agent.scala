@@ -25,5 +25,5 @@ object Agent {
   def props(configuration: Seq[MetricConfiguration]) =
     Props(new Agent(configuration))
 
-  case class MetricCollected(timestamp: Long, status: MetricValue)
+  case class MetricCollected(status: MetricValue)
 }

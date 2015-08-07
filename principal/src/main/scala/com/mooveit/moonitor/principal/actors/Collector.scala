@@ -29,13 +29,12 @@ class Collector(conf: MetricConfiguration) extends Actor {
 
   override def receive = {
     case Collect =>
-      println(s"Collector(${conf.metric}) collecting status")
       Future { collectionStrategy.collect } map updateAgent
   }
 
   def updateAgent(value: Any) =
     context.parent !
-      MetricCollected(currentTime, MetricValue(metric, value))
+      MetricCollected(MetricValue(metric, currentTime, value))
 }
 
 object Collector {

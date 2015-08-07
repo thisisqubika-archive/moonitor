@@ -12,15 +12,14 @@ class Principal(host: String, repository: ActorRef) extends Actor {
   private var agent: ActorRef = _
 
   override def preStart() = {
-    val conf = Seq(MetricConfiguration(MaxFiles, 2.seconds))
+    val conf = Seq(MetricConfiguration(MaxFiles, 1.seconds))
     agent = context.actorOf(Agent.props(conf), "agent")
     println(s"Principal: Created agent $agent")
   }
 
   override def receive = {
-    case MetricCollected(timestamp, metricValue) =>
-      println(s"Principal: Recieved MetricCollected($timestamp)")
-      repository ! Save(host, timestamp, metricValue)
+    case MetricCollected(metricValue) =>
+      repository ! Save(host, metricValue)
   }
 }
 

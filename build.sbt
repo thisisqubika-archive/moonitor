@@ -19,10 +19,13 @@ lazy val agent = (project in file("agent")).
   settings(name := "moonitor-agent")
 
 resolvers += "rediscala" at "http://dl.bintray.com/etaty/maven"
-val sprayVersion = "1.3.2"
+val elastic4sVersion = "1.7.0"
 
 lazy val principal = (project in file("principal")).
   dependsOn(domain, agent).
   settings(commonSettings: _*).
   settings(libraryDependencies ++= commonDependencies).
+  settings(libraryDependencies ++=
+  Seq("com.sksamuel.elastic4s" %% "elastic4s-jackson" % elastic4sVersion,
+    "com.sksamuel.elastic4s" %% "elastic4s-core" % elastic4sVersion)).
   settings(name := "moonitor-principal")
