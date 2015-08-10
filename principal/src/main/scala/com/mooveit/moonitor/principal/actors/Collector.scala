@@ -20,7 +20,7 @@ class Collector(conf: MetricConfiguration) extends Actor {
 
   override def preStart() = {
     scheduledRetrieve = context.system.scheduler.
-      schedule(0.seconds, conf.frequency, self, Collect)
+      schedule(0.seconds, conf.frequency.millis, self, Collect)
   }
 
   override def postStop() = {

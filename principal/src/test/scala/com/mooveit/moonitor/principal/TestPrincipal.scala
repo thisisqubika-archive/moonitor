@@ -4,7 +4,7 @@ import akka.testkit.{TestActorRef, TestProbe}
 import com.mooveit.moonitor.domain.metrics.{MaxFiles, MetricValue}
 import com.mooveit.moonitor.principal.actors.Agent.MetricCollected
 import com.mooveit.moonitor.principal.actors.Principal
-import com.mooveit.moonitor.principal.actors.Repository.Save
+import com.mooveit.moonitor.principal.actors.MetricsStore.Save
 import com.mooveit.moonitor.principal.spec.UnitSpec
 
 class TestPrincipal extends UnitSpec("testPrincipal") {

@@ -1,13 +1,17 @@
 package com.mooveit.moonitor.principal
 
 import akka.actor.{ActorSystem, Props}
+import com.mooveit.moonitor.principal.actors.Principal.props
 import com.mooveit.moonitor.principal.actors._
 
 object Main extends App {
 
   val system = ActorSystem("moonitor-actor-system")
 
-  val repository = system.actorOf(Props[Repository], "repository")
+  val repository =
+    system.actorOf(Props[MetricsStore], "metrics-store")
+  val confRepository =
+    system.actorOf(Props[ConfigurationStore], "configuration-store")
 
-  system.actorOf(Principal.props("localhost", repository), "principal")
+  system.actorOf(props("localhost", repository, confRepository), "principal")
 }
