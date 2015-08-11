@@ -1,10 +1,10 @@
-package com.mooveit.moonitor.principal.actors
+package com.mooveit.moonitor.agent.actors
 
 import akka.actor.{Actor, Cancellable, Props}
+import com.mooveit.moonitor.agent.actors.Agent.MetricCollected
+import com.mooveit.moonitor.agent.actors.Collector.Collect
+import com.mooveit.moonitor.agent.metrics.CollectionStrategyFactory.getCollectionStrategy
 import com.mooveit.moonitor.domain.metrics.{MetricConfiguration, MetricValue}
-import com.mooveit.moonitor.principal.actors.Agent.MetricCollected
-import com.mooveit.moonitor.principal.actors.Collector.Collect
-import com.mooveit.moonitor.principal.metrics.CollectionStrategyFactory._
 
 import scala.compat.Platform._
 import scala.concurrent.Future

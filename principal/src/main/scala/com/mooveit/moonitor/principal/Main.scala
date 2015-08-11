@@ -6,7 +6,7 @@ import com.mooveit.moonitor.principal.actors._
 
 object Main extends App {
 
-  val system = ActorSystem("moonitor-actor-system")
+  val system = ActorSystem("principal-system")
 
   val repository =
     system.actorOf(Props[MetricsStore], "metrics-store")

@@ -1,8 +1,8 @@
-package com.mooveit.moonitor.principal.actors
+package com.mooveit.moonitor.agent.actors
 
 import akka.actor.{Actor, ActorRef, Props}
-import com.mooveit.moonitor.domain.metrics.{MetricValue, MetricConfiguration}
-import com.mooveit.moonitor.principal.actors.Agent.MetricCollected
+import com.mooveit.moonitor.agent.actors.Agent.MetricCollected
+import com.mooveit.moonitor.domain.metrics.{MetricConfiguration, MetricValue}
 
 class Agent(conf: Seq[MetricConfiguration]) extends Actor {
 

@@ -1,6 +1,6 @@
-package com.mooveit.moonitor.principal.metrics
+package com.mooveit.moonitor.agent.metrics
 
-import com.mooveit.moonitor.domain.metrics.{UdpListen, Metric}
+import com.mooveit.moonitor.domain.metrics.{Metric, UdpListen}
 
 import scala.util.Random
 

@@ -1,4 +1,4 @@
-package com.mooveit.moonitor.principal.metrics
+package com.mooveit.moonitor.agent.metrics
 
 import com.mooveit.moonitor.domain.metrics.{MaxFiles, MaxProcesses, Metric}
 

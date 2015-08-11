@@ -18,6 +18,7 @@ lazy val commonSettings = Seq(
 lazy val commonDependencies = Seq(
   "com.typesafe.akka" % "akka" % akkaVersion,
   "com.typesafe.akka" %% "akka-remote" % akkaRemoteVersion,
+  "ch.qos.logback" % "logback-classic" % "1.1.3",
   "com.typesafe.akka" %% "akka-testkit" % akkaTestkitVersion % "test",
   "org.scalatest" %% "scalatest" % scalatestVersion % "test")
 
@@ -34,6 +35,7 @@ lazy val domain = (project in file("domain")).
   settings(name := "moonitor-common")
 
 lazy val agent = (project in file("agent")).
+  dependsOn(domain).
   settings(commonSettings: _*).
   settings(libraryDependencies ++= commonDependencies).
   settings(name := "moonitor-agent")

@@ -1,6 +1,6 @@
-package com.mooveit.moonitor.principal.metrics
+package com.mooveit.moonitor.agent.metrics
 
-import com.mooveit.moonitor.domain.metrics.{NumberOfProcesses, Metric}
+import com.mooveit.moonitor.domain.metrics.{Metric, NumberOfProcesses}
 
 import scala.util.Random
 
