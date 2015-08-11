@@ -6,4 +6,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id
 
 @JsonTypeInfo(use = Id.NAME)
 @JsonSubTypes(Array(new Type(value = classOf[CpuLoad], name = "CpuLoad")))
-trait Metric
+trait Metric {
+  
+  def id = getClass.getSimpleName
+}

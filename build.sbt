@@ -10,6 +10,7 @@ val akkaVersion = "2.1.4"
 val akkaRemoteVersion = "2.3.12"
 val akkaTestkitVersion = "2.3.11"
 val scalatestVersion = "2.2.4"
+val logbackVersion = "1.1.3"
 
 lazy val commonSettings = Seq(
   organization := "com.mooveit",
@@ -19,7 +20,7 @@ lazy val commonSettings = Seq(
 lazy val commonDependencies = Seq(
   "com.typesafe.akka" % "akka" % akkaVersion,
   "com.typesafe.akka" %% "akka-remote" % akkaRemoteVersion,
-  "ch.qos.logback" % "logback-classic" % "1.1.3",
+  "ch.qos.logback" % "logback-classic" % logbackVersion,
   "com.typesafe.akka" %% "akka-testkit" % akkaTestkitVersion % "test",
   "org.scalatest" %% "scalatest" % scalatestVersion % "test")
 
@@ -47,12 +48,6 @@ lazy val principal = (project in file("principal")).
   settings(libraryDependencies ++= commonDependencies).
   settings(libraryDependencies ++= Seq(
   "com.etaty.rediscala" %% "rediscala" % rediscalaVersion,
-  "org.scalaj" %% "scalaj-http" % scalajVersion)).
+  "org.scalaj" %% "scalaj-http" % scalajVersion,
+  "io.spray" %% "spray-can" % sprayVersion)).
   settings(name := "moonitor-principal")
-
-lazy val hostconfig = (project in file("hostconfig")).
-  dependsOn(domain).
-  settings(commonSettings: _*).
-  settings(libraryDependencies ++= commonDependencies).
-  settings(libraryDependencies += "io.spray" %% "spray-can" % sprayVersion).
-  settings(name := "moonitor-hostconfig")

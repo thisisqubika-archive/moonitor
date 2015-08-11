@@ -2,6 +2,6 @@ package com.mooveit.moonitor.domain.metrics
 
 trait ProcessesMetric extends Metric
 
-case class NumberOfProcesses(name: String,
+case class NumberOfProcesses(procId: String,
                              user: String,
                              status: String) extends ProcessesMetric

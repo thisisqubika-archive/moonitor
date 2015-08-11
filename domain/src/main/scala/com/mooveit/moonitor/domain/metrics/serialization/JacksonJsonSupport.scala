@@ -29,19 +29,23 @@ object JacksonJsonSupport {
       delegate[T, String](`application/json`)(mapper.writeValueAsString(_))
 
 
-  implicit val byteStringFormatter =
-    new ByteStringFormatter[Seq[MetricConfiguration]] {
-      def serialize(data: Seq[MetricConfiguration]): ByteString = {
+  implicit val metricConfigurationFormatter =
+    new ByteStringFormatter[MetricConfiguration] {
+      def serialize(data: MetricConfiguration): ByteString = {
         ByteString(mapper.writeValueAsBytes(data))
       }
 
-      def deserialize(bs: ByteString): Seq[MetricConfiguration] = {
-        val typeReference = mapper.getTypeFactory.constructCollectionLikeType(
-          classOf[List[MetricConfiguration]],
-          classOf[MetricConfiguration]
-        )
-
-        mapper.readValue(bs.toArray, typeReference)
+      def deserialize(bs: ByteString): MetricConfiguration = {
+        mapper.readValue(bs.toArray, classOf[MetricConfiguration])
       }
+    }
+
+  implicit val booleanFormatter =
+    new ByteStringFormatter[Boolean] {
+      override def serialize(data: Boolean) =
+        ByteString(mapper.writeValueAsBytes(data))
+
+      override def deserialize(bs: ByteString) =
+        mapper.readValue(bs.toArray, classOf[Boolean])
     }
 }
