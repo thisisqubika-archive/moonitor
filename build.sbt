@@ -1,10 +1,11 @@
-resolvers += "Spray repository" at "http://repo.spray.io"
-resolvers += "rediscala" at "http://dl.bintray.com/etaty/maven"
+resolvers in ThisBuild  ++= Seq(
+  "Spray repository" at "http://repo.spray.io",
+  "rediscala" at "http://dl.bintray.com/etaty/maven")
 
 val sprayVersion = "1.3.2"
 val jacksonVersion = "2.6.0"
-val elastic4sVersion = "1.7.0"
 val rediscalaVersion = "1.4.0"
+val scalajVersion = "1.1.5"
 val akkaVersion = "2.1.4"
 val akkaRemoteVersion = "2.3.12"
 val akkaTestkitVersion = "2.3.11"
@@ -45,9 +46,8 @@ lazy val principal = (project in file("principal")).
   settings(commonSettings: _*).
   settings(libraryDependencies ++= commonDependencies).
   settings(libraryDependencies ++= Seq(
-  "com.sksamuel.elastic4s" %% "elastic4s-jackson" % elastic4sVersion,
-  "com.sksamuel.elastic4s" %% "elastic4s-core" % elastic4sVersion,
-  "com.etaty.rediscala" %% "rediscala" % rediscalaVersion)).
+  "com.etaty.rediscala" %% "rediscala" % rediscalaVersion,
+  "org.scalaj" %% "scalaj-http" % scalajVersion)).
   settings(name := "moonitor-principal")
 
 lazy val hostconfig = (project in file("hostconfig")).
