@@ -21,5 +21,14 @@ object CollectionStrategyFactory extends CollectionStrategyFactory{
 
     case _: SystemMetric =>
       SystemMetricCollectionStrategyFactory.getCollectionStrategy(metric)
+
+    case _: MemoryMetric =>
+      MemoryCollectionStrategyFactory.getCollectionStrategy(metric)
+
+    case _: FileSystemMetric =>
+      FileSystemMetricCollectionStrategyFactory.getCollectionStrategy(metric)
+
+    case _: SwapMetric =>
+      SwapMetricCollectionStrategyFactory.getCollectionStrategy(metric)
   }
 }

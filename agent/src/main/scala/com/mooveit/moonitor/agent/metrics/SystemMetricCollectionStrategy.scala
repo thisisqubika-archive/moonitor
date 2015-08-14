@@ -1,35 +1,76 @@
 package com.mooveit.moonitor.agent.metrics
 
+import java.net.InetAddress
+
 import com.mooveit.moonitor.domain.metrics._
 
-import scala.util.Random
+import scala.compat.Platform.currentTime
 
-object HostBootTimeStrategy extends CollectionStrategy {
+object HostBootTimeStrategy extends HostMetricCollectionStrategy {
 
-  override def collect = Random.nextInt()
+  override def collect = throw new UnsupportedOperationException
 }
 
-object InterruptsPerSecondStrategy extends CollectionStrategy {
+object InterruptsPerSecondStrategy extends HostMetricCollectionStrategy {
 
-  override def collect = Random.nextInt()
+  override def collect = throw new UnsupportedOperationException
 }
 
-case class CpuLoadStrategy(cpu: String, mode: String)
-  extends CollectionStrategy {
+object CpuLoadStrategy extends HostMetricCollectionStrategy {
 
-  override def collect = Random.nextInt()
+  override def collect = sigar.getCpuPerc.getCombined
 }
 
-object CpuSwitchesStrategy extends CollectionStrategy {
+object CpuSwitchesStrategy extends HostMetricCollectionStrategy {
 
-  override def collect = Random.nextInt()
+  override def collect = throw new UnsupportedOperationException
 }
 
-case class CpuUtilizationStrategy(cpu: String,
-                                  utilType: String,
-                                  mode: String) extends CollectionStrategy {
+case class CpuUtilizationStrategy(mode: CpuUtilizationMode)
+  extends HostMetricCollectionStrategy {
 
-  override def collect = Random.nextInt()
+  override def collect = mode match {
+    case Idle => sigar.getCpuPerc.getIdle
+
+    case Interrupt => sigar.getCpuPerc.getIrq
+
+    case IOWait => sigar.getCpuPerc.getWait
+
+    case Nice => sigar.getCpuPerc.getNice
+
+    case SoftIrq => sigar.getCpuPerc.getSoftIrq
+
+    case Steal => sigar.getCpuPerc.getStolen
+
+    case System => sigar.getCpuPerc.getSys
+
+    case User => sigar.getCpuPerc.getUser
+  }
+}
+
+object HostNameStrategy extends CollectionStrategy {
+
+  override def collect = InetAddress.getLocalHost.getHostName
+}
+
+object HostLocalTimeStrategy extends CollectionStrategy {
+
+  override def collect = currentTime
+}
+
+object SystemNameStrategy extends CollectionStrategy {
+
+  override def collect = java.lang.System.getProperty("os.name")
+}
+
+object SystemUptimeStrategy extends HostMetricCollectionStrategy {
+
+  override def collect = sigar.getUptime.getUptime
+}
+
+object LoggedUsersStrategy extends HostMetricCollectionStrategy {
+
+  override def collect = throw new UnsupportedOperationException
 }
 
 object SystemMetricCollectionStrategyFactory extends CollectionStrategyFactory {
@@ -39,11 +80,20 @@ object SystemMetricCollectionStrategyFactory extends CollectionStrategyFactory {
 
     case InterruptsPerSecond => InterruptsPerSecondStrategy
 
-    case CpuLoad(cpu, mode) => CpuLoadStrategy(cpu, mode)
+    case CpuLoad => CpuLoadStrategy
 
     case CpuSwitches => CpuSwitchesStrategy
 
-    case CpuUtilization(cpu, utilType, mode) =>
-      CpuUtilizationStrategy(cpu, utilType, mode)
+    case CpuUtilization(mode) => CpuUtilizationStrategy(mode)
+
+    case HostName => HostNameStrategy
+
+    case HostLocalTime => HostLocalTimeStrategy
+
+    case SystemName => SystemNameStrategy
+
+    case SystemUptime => SystemUptimeStrategy
+
+    case LoggedUsers => LoggedUsersStrategy
   }
 }

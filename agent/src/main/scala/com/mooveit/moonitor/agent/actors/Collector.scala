@@ -45,7 +45,7 @@ class Collector(conf: MetricConfiguration) extends Actor {
   override def receive = {
     case ChangeFrequency(newFrequency) => changeFrequency(newFrequency)
 
-    case Collect => println("collecting"); collect()
+    case Collect => collect()
   }
 }
 

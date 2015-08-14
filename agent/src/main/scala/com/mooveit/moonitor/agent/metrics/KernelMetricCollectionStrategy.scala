@@ -2,16 +2,14 @@ package com.mooveit.moonitor.agent.metrics
 
 import com.mooveit.moonitor.domain.metrics.{MaxFiles, MaxProcesses, Metric}
 
-import scala.util.Random
+object MaxFilesStrategy extends HostMetricCollectionStrategy {
 
-object MaxFilesStrategy extends CollectionStrategy {
-
-  override def collect = Random.nextInt()
+  override def collect = sigar.getResourceLimit.getOpenFilesMax
 }
 
-object MaxProcessesStrategy extends CollectionStrategy {
+object MaxProcessesStrategy extends HostMetricCollectionStrategy {
 
-  override def collect = Random.nextInt()
+  override def collect = sigar.getResourceLimit.getProcessesMax
 }
 
 object KernelMetricCollectionStrategyFactory {

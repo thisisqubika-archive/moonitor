@@ -31,10 +31,10 @@ class ConfigurationStore extends Actor {
       repo.del(host)
 
     case SaveHostMetric(host, mconf) =>
-      repo.hset(host, mconf.metric.id, mconf)
+      repo.hset(host, mconf.metric.toString, mconf)
 
     case RemoveHostMetric(host, metric) =>
-      repo.hdel(host, metric.id)
+      repo.hdel(host, metric.toString)
   }
 }
 

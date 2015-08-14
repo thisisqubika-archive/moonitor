@@ -1,12 +1,22 @@
 package com.mooveit.moonitor.agent.metrics
 
-import com.mooveit.moonitor.domain.metrics.{Metric, UdpListen}
+import com.mooveit.moonitor.domain.metrics._
 
-import scala.util.Random
+case class UdpListenStrategy(port: Int) extends HostMetricCollectionStrategy {
 
-case class UdpListenStrategy(port: Int) extends CollectionStrategy {
+  override def collect = throw new UnsupportedOperationException
+}
 
-  override def collect = Random.nextInt(port)
+case class InterfaceInStrategy(name: String)
+  extends HostMetricCollectionStrategy {
+
+  override def collect = sigar.getNetInterfaceStat(name).getRxPackets
+}
+
+case class InterfaceOutStrategy(name: String)
+  extends HostMetricCollectionStrategy {
+
+  override def collect = sigar.getNetInterfaceStat(name).getTxPackets
 }
 
 object NetworkMetricCollectionStrategyFactory
@@ -14,5 +24,9 @@ object NetworkMetricCollectionStrategyFactory
 
   override def getCollectionStrategy(metric: Metric) = metric match {
     case UdpListen(port) => UdpListenStrategy(port)
+
+    case InterfaceIn(name) => InterfaceInStrategy(name)
+
+    case InterfaceOut(name) => InterfaceOutStrategy(name)
   }
 }

@@ -6,6 +6,7 @@ val sprayVersion = "1.3.2"
 val jacksonVersion = "2.6.0"
 val rediscalaVersion = "1.4.0"
 val scalajVersion = "1.1.5"
+val sigarVersion = "1.6.4"
 val akkaVersion = "2.1.4"
 val akkaRemoteVersion = "2.3.12"
 val akkaTestkitVersion = "2.3.11"
@@ -40,6 +41,7 @@ lazy val agent = (project in file("agent")).
   dependsOn(domain).
   settings(commonSettings: _*).
   settings(libraryDependencies ++= commonDependencies).
+  settings(libraryDependencies += "org.fusesource" % "sigar" % sigarVersion).
   settings(name := "moonitor-agent")
 
 lazy val principal = (project in file("principal")).

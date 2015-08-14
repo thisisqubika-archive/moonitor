@@ -12,7 +12,7 @@ class MetricsStore extends Actor {
     case Save(host, MetricValue(metric, timestamp, value)) =>
       Http("http://localhost:8086/write").
         params(("db", s"metrics-$host"), ("precision", "ms")).
-        postData(s"${metric.getClass.getSimpleName} value=$value $timestamp").
+        postData(s"$metric value=$value $timestamp").
         asBytes
   }
 }
