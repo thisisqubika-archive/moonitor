@@ -2,6 +2,7 @@ resolvers in ThisBuild  ++= Seq(
   "Spray repository" at "http://repo.spray.io",
   "rediscala" at "http://dl.bintray.com/etaty/maven")
 
+val configVersion = "1.3.0"
 val sprayVersion = "1.3.2"
 val jacksonVersion = "2.6.0"
 val rediscalaVersion = "1.4.0"
@@ -22,6 +23,7 @@ lazy val commonDependencies = Seq(
   "com.typesafe.akka" % "akka" % akkaVersion,
   "com.typesafe.akka" %% "akka-remote" % akkaRemoteVersion,
   "ch.qos.logback" % "logback-classic" % logbackVersion,
+  "com.typesafe" % "config" % configVersion,
   "com.typesafe.akka" %% "akka-testkit" % akkaTestkitVersion % "test",
   "org.scalatest" %% "scalatest" % scalatestVersion % "test")
 

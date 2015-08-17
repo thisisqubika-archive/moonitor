@@ -7,14 +7,15 @@ import com.mooveit.moonitor.agent.actors.Agent._
 import com.mooveit.moonitor.domain.metrics.MetricConfiguration
 import com.mooveit.moonitor.principal.actors.ConfigurationStore._
 import com.mooveit.moonitor.principal.actors.MetricsStore.Save
+import com.typesafe.config.ConfigFactory
 
 class Principal(host: String, store: ActorRef, confStore: ActorRef)
   extends Actor {
 
+  val config = ConfigFactory.load()
   private var agent: ActorRef = _
 
   override def preStart() = {
-    println("Principal starting")
     confStore ! RetrieveHostConfig(host)
   }
 
@@ -22,8 +23,10 @@ class Principal(host: String, store: ActorRef, confStore: ActorRef)
 
   override def receive = {
     case conf: Iterable[MetricConfiguration] =>
-      println(s"Principal received conf: $conf")
-      val address = Address("akka.tcp", "agent-system", host, 2552)
+      val protocol = config.getString("agent.protocol")
+      val systemName = config.getString("agent.system_name")
+      val port = config.getInt("agent.port")
+      val address = Address(protocol, systemName, host, port)
       val deploy = Deploy(scope = RemoteScope(address))
       agent = context.actorOf(Agent.props(conf).withDeploy(deploy))
 

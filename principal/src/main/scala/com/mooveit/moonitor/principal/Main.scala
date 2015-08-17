@@ -5,11 +5,14 @@ import akka.io.IO
 import akka.pattern.ask
 import akka.util.Timeout
 import com.mooveit.moonitor.principal.actors._
+import com.typesafe.config.ConfigFactory
 import spray.can.Http
 
 import scala.concurrent.duration._
 
 object Main extends App {
+
+  val config = ConfigFactory.load()
 
   implicit val system = ActorSystem("principal-system")
 
@@ -24,5 +27,7 @@ object Main extends App {
   implicit val timeout = Timeout(10.seconds)
   val service = system.actorOf(ConfigurationService.props(mastermind))
 
-  IO(Http) ? Http.Bind(service, interface = "localhost", port = 8080)
+  val interface = config.getString("restservice.iface")
+  val port = config.getInt("restservice.port")
+  IO(Http) ? Http.Bind(service, interface, port)
 }

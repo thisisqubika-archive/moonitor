@@ -7,5 +7,5 @@ object Main extends App {
   System.load(getClass.getClassLoader.
     getResource("libsigar-amd64-linux.so").getFile)
 
-  val system = ActorSystem("agent-system")
+  ActorSystem("agent-system")
 }

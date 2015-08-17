@@ -54,6 +54,6 @@ object Collector {
   def props(conf: MetricConfiguration) = Props(new Collector(conf))
 
   case object Collect
-  
+
   case class ChangeFrequency(newFrequency: Int)
 }

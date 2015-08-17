@@ -5,6 +5,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id
 
 @JsonTypeInfo(use = Id.CLASS)
 trait Metric {
-  
+
   def id = getClass.getSimpleName
 }
