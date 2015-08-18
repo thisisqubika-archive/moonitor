@@ -53,7 +53,8 @@ class ConfigurationService(mastermind: ActorRef) extends HttpServiceActor {
             entity(as[AlertConfiguration]) { aconf =>
               complete {
                 mastermind !
-                  StartWatching(host, aconf.metric, aconf.operator, aconf.value)
+                  StartWatching(host, aconf.metric, aconf.operator,
+                    aconf.value, aconf.mailTo)
                 "Ok"
               }
             }

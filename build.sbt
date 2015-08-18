@@ -1,4 +1,4 @@
-resolvers in ThisBuild  ++= Seq(
+resolvers in ThisBuild ++= Seq(
   "Spray repository" at "http://repo.spray.io",
   "rediscala" at "http://dl.bintray.com/etaty/maven",
   "softprops-maven" at "http://dl.bintray.com/content/softprops/maven")
@@ -46,7 +46,17 @@ lazy val agent = (project in file("agent")).
   settings(commonSettings: _*).
   settings(libraryDependencies ++= commonDependencies).
   settings(libraryDependencies += "org.fusesource" % "sigar" % sigarVersion).
-  settings(name := "moonitor-agent")
+  settings(name := "moonitor-agent",
+  bashScriptExtraDefines += """addJava "-Djava.library.path=${app_home}/../lib"""",
+  maintainer in Linux := "Enrique Rodriguez <enrique.rodriguez@moove-it.com>",
+  packageSummary in Linux := "Monitor agent.",
+  packageDescription in Linux := "Monitor agent.",
+  daemonUser in Linux := "mooveit",
+  daemonGroup in Linux := (daemonUser in Linux).value,
+  rpmVendor := "Moove-it",
+  rpmLicense := Some("Apache License"),
+  packageArchitecture in Rpm := "x86_64").
+  enablePlugins(JavaServerAppPackaging)
 
 lazy val principal = (project in file("principal")).
   dependsOn(domain, agent).
@@ -57,4 +67,5 @@ lazy val principal = (project in file("principal")).
   "org.scalaj" %% "scalaj-http" % scalajVersion,
   "io.spray" %% "spray-can" % sprayVersion,
   "me.lessis" %% "courier" % courierVersion)).
-  settings(name := "moonitor-principal")
+  settings(name := "moonitor-principal").
+  enablePlugins(JavaAppPackaging)

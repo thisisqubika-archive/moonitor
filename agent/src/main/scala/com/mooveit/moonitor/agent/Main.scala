@@ -1,11 +1,18 @@
 package com.mooveit.moonitor.agent
 
+import java.io.File
+
 import akka.actor.ActorSystem
+import com.typesafe.config.ConfigFactory
 
 object Main extends App {
 
-  System.load(getClass.getClassLoader.
-    getResource("libsigar-amd64-linux.so").getFile)
+  val config =
+    ConfigFactory
+      .parseFile(new File("/etc/default/moonitor-agent.conf"))
+      .withFallback(ConfigFactory.load("dev"))
 
-  ActorSystem("agent-system")
+  System.loadLibrary("sigar-amd64-linux")
+
+  ActorSystem("agent-system", config)
 }

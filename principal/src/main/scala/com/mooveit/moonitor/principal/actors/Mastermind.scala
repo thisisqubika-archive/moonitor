@@ -51,9 +51,10 @@ class Mastermind(store: ActorRef, confStore: ActorRef) extends Actor {
         _ ! Agent.StopCollecting(metric)
       }
 
-    case StartWatching(host, metric, operator, value) =>
+    case StartWatching(host, metric, operator, value, mailTo) =>
       principals.get(host) foreach {
-        _ ! Watcher.StartWatching(AlertConfiguration(metric, operator, value))
+        _ ! Watcher.StartWatching(
+              AlertConfiguration(metric, operator, value, mailTo))
       }
 
     case StopWatching(host, metric) =>
@@ -79,7 +80,7 @@ object Mastermind {
   case class StopCollecting(host: String, metric: Metric)
 
   case class StartWatching(host: String, metric: Metric,
-                           operator: Operator, value: Any)
+                           operator: Operator, value: Any, mailTo: String)
 
   case class StopWatching(host: String, metric: Metric)
 }

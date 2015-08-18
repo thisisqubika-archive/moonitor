@@ -1,2 +1,2 @@
 target/
-**/resources/application.conf
+**/resources/dev.conf

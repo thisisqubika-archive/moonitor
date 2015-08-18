@@ -1,5 +1,7 @@
 package com.mooveit.moonitor.principal
 
+import java.io.File
+
 import akka.actor.{ActorSystem, Props}
 import akka.io.IO
 import akka.pattern.ask
@@ -12,9 +14,12 @@ import scala.concurrent.duration._
 
 object Main extends App {
 
-  val config = ConfigFactory.load()
+  val config =
+    ConfigFactory
+      .parseFile(new File("/etc/default/moonitor-principal.conf"))
+      .withFallback(ConfigFactory.load("dev"))
 
-  implicit val system = ActorSystem("principal-system")
+  implicit val system = ActorSystem("principal-system", config)
 
   val store =
     system.actorOf(Props[MetricsStore], "metrics-store")
