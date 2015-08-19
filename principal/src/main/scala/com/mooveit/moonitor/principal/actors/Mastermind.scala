@@ -3,6 +3,7 @@ package com.mooveit.moonitor.principal.actors
 import akka.actor.{Actor, ActorRef, Props}
 import com.mooveit.moonitor.agent.actors.Agent
 import com.mooveit.moonitor.agent.actors.Agent.Stop
+import com.mooveit.moonitor.domain.alerts.{AlertConfiguration, Operator}
 import com.mooveit.moonitor.domain.metrics.{MetricConfiguration, Metric}
 import com.mooveit.moonitor.principal.actors.ConfigurationStore.{RemoveHost, SaveHost, RetrieveConfiguredHosts}
 import com.mooveit.moonitor.principal.actors.Mastermind._
@@ -24,7 +25,7 @@ class Mastermind(store: ActorRef, confStore: ActorRef) extends Actor {
     host -> createPrincipalActor(host)
 
   override def receive = {
-    case hosts: Iterable[String] =>
+    case ConfiguredHosts(hosts) =>
       principals = hosts.map(createPrincipalMapping).toMap
 
     case StartHost(host) =>
@@ -49,6 +50,16 @@ class Mastermind(store: ActorRef, confStore: ActorRef) extends Actor {
       principals.get(host) foreach {
         _ ! Agent.StopCollecting(metric)
       }
+
+    case StartWatching(host, metric, operator, value) =>
+      principals.get(host) foreach {
+        _ ! Watcher.StartWatching(AlertConfiguration(metric, operator, value))
+      }
+
+    case StopWatching(host, metric) =>
+      principals.get(host) foreach {
+        _ ! Watcher.StopWatching(metric)
+      }
   }
 }
 
@@ -56,6 +67,8 @@ object Mastermind {
 
   def props(store: ActorRef, confStore: ActorRef) =
     Props(new Mastermind(store, confStore))
+  
+  case class ConfiguredHosts(hosts: Iterable[String])
 
   case class StartHost(host: String)
 
@@ -64,4 +77,9 @@ object Mastermind {
   case class StartCollecting(host: String, metric: Metric, frequency: Int)
 
   case class StopCollecting(host: String, metric: Metric)
+
+  case class StartWatching(host: String, metric: Metric,
+                           operator: Operator, value: Any)
+
+  case class StopWatching(host: String, metric: Metric)
 }

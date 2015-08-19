@@ -1,11 +1,10 @@
-package com.mooveit.moonitor.domain.metrics.serialization
-
-import java.io.{ObjectInputStream, ByteArrayInputStream, ByteArrayOutputStream, ObjectOutputStream}
+package com.mooveit.moonitor.domain.serialization
 
 import akka.util.ByteString
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
+import com.mooveit.moonitor.domain.alerts.AlertConfiguration
 import com.mooveit.moonitor.domain.metrics.MetricConfiguration
 import redis.ByteStringFormatter
 import spray.http.ContentTypes.`application/json`
@@ -39,6 +38,17 @@ object JacksonJsonSupport {
 
       def deserialize(bs: ByteString): MetricConfiguration = {
         mapper.readValue(bs.toArray, classOf[MetricConfiguration])
+      }
+    }
+
+  implicit val alertConfigurationFormatter =
+    new ByteStringFormatter[AlertConfiguration] {
+      def serialize(data: AlertConfiguration): ByteString = {
+        ByteString(mapper.writeValueAsBytes(data))
+      }
+
+      def deserialize(bs: ByteString): AlertConfiguration = {
+        mapper.readValue(bs.toArray, classOf[AlertConfiguration])
       }
     }
 

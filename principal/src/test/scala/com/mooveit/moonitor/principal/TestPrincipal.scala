@@ -1,7 +1,7 @@
 package com.mooveit.moonitor.principal
 
 import akka.testkit.{TestActorRef, TestProbe}
-import com.mooveit.moonitor.domain.metrics.{MaxFiles, MetricValue}
+import com.mooveit.moonitor.domain.metrics.{MaxFiles, MetricResult}
 import com.mooveit.moonitor.principal.actors.Agent.MetricCollected
 import com.mooveit.moonitor.principal.actors.Principal
 import com.mooveit.moonitor.principal.actors.MetricsStore.Save
@@ -20,7 +20,7 @@ class TestPrincipal extends UnitSpec("testPrincipal") {
       }
     }
     "metric collected" should {
-      principal ! MetricCollected(12345L, MetricValue(MaxFiles, 1))
+      principal ! MetricCollected(12345L, MetricResult(MaxFiles, 1))
       "notify repository" in {
         repository.expectMsgClass(classOf[Save])
       }

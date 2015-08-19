@@ -1,11 +1,14 @@
 package com.mooveit.moonitor.principal.actors
 
 import akka.actor.Actor
+import com.mooveit.moonitor.domain.alerts.AlertConfiguration
 import com.mooveit.moonitor.domain.metrics.{Metric, MetricConfiguration}
 import com.mooveit.moonitor.principal.actors.ConfigurationStore._
+import com.mooveit.moonitor.principal.actors.Mastermind.ConfiguredHosts
+import com.mooveit.moonitor.principal.actors.Principal.{AlertsConfiguration, MetricsConfiguration}
 import redis.RedisClient
 
-import com.mooveit.moonitor.domain.metrics.serialization.JacksonJsonSupport._
+import com.mooveit.moonitor.domain.serialization.JacksonJsonSupport._
 
 class ConfigurationStore extends Actor {
 
@@ -14,27 +17,44 @@ class ConfigurationStore extends Actor {
   val CONFIGURED_HOSTS_KEY = "configured_hosts"
   private val repo = RedisClient()
 
+  def makeMetricsKey(host: String) = s"${host}_metrics"
+
+  def makeAlertsKey(host: String) = s"${host}_alerts"
+
   override def receive = {
     case RetrieveConfiguredHosts =>
       val originalSender = sender()
-      repo.hgetall[String](CONFIGURED_HOSTS_KEY) map { originalSender ! _.keys }
+      val future = repo.hgetall[String](CONFIGURED_HOSTS_KEY)
+      future map { conf => originalSender ! ConfiguredHosts(conf.keys) }
 
-    case RetrieveHostConfig(host) =>
+    case RetrieveMetricsConfig(host) =>
       val originalSender = sender()
-      repo.hgetall[MetricConfiguration](host) map { originalSender ! _.values }
+      val future = repo.hgetall[MetricConfiguration](makeMetricsKey(host))
+      future map { conf => originalSender ! MetricsConfiguration(conf.values) }
+
+    case RetrieveAlertsConfig(host) =>
+      val originalSender = sender()
+      val future = repo.hgetall[AlertConfiguration](makeAlertsKey(host))
+      future map { conf => originalSender ! AlertsConfiguration(conf.values) }
 
     case SaveHost(host) =>
       repo.hset(CONFIGURED_HOSTS_KEY, host, true)
 
     case RemoveHost(host) =>
       repo.hdel(CONFIGURED_HOSTS_KEY, host)
-      repo.del(host)
+      repo.del(makeMetricsKey(host))
 
-    case SaveHostMetric(host, mconf) =>
-      repo.hset(host, mconf.metric.toString, mconf)
+    case SaveMetric(host, mconf) =>
+      repo.hset(makeMetricsKey(host), mconf.metric.toString, mconf)
 
-    case RemoveHostMetric(host, metric) =>
-      repo.hdel(host, metric.toString)
+    case RemoveMetric(host, metric) =>
+      repo.hdel(makeMetricsKey(host), metric.toString)
+
+    case SaveAlert(host, aconf) =>
+      repo.hset(makeAlertsKey(host), aconf.metric.toString, aconf)
+
+    case RemoveAlert(host, metric) =>
+      repo.hdel(makeAlertsKey(host), metric.toString)
   }
 }
 
@@ -42,13 +62,19 @@ object ConfigurationStore {
 
   case object RetrieveConfiguredHosts
 
-  case class RetrieveHostConfig(host: String)
+  case class RetrieveMetricsConfig(host: String)
+
+  case class RetrieveAlertsConfig(host: String)
 
   case class SaveHost(host: String)
 
   case class RemoveHost(host: String)
 
-  case class SaveHostMetric(host: String, mconf: MetricConfiguration)
+  case class SaveMetric(host: String, mconf: MetricConfiguration)
 
-  case class RemoveHostMetric(host: String, metric: Metric)
+  case class RemoveMetric(host: String, metric: Metric)
+
+  case class SaveAlert(host: String, aconf: AlertConfiguration)
+
+  case class RemoveAlert(host: String, metric: Metric)
 }

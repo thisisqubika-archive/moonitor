@@ -1,6 +1,7 @@
 resolvers in ThisBuild  ++= Seq(
   "Spray repository" at "http://repo.spray.io",
-  "rediscala" at "http://dl.bintray.com/etaty/maven")
+  "rediscala" at "http://dl.bintray.com/etaty/maven",
+  "softprops-maven" at "http://dl.bintray.com/content/softprops/maven")
 
 val configVersion = "1.3.0"
 val sprayVersion = "1.3.2"
@@ -8,6 +9,7 @@ val jacksonVersion = "2.6.0"
 val rediscalaVersion = "1.4.0"
 val scalajVersion = "1.1.5"
 val sigarVersion = "1.6.4"
+val courierVersion = "0.1.3"
 val akkaVersion = "2.1.4"
 val akkaRemoteVersion = "2.3.12"
 val akkaTestkitVersion = "2.3.11"
@@ -53,5 +55,6 @@ lazy val principal = (project in file("principal")).
   settings(libraryDependencies ++= Seq(
   "com.etaty.rediscala" %% "rediscala" % rediscalaVersion,
   "org.scalaj" %% "scalaj-http" % scalajVersion,
-  "io.spray" %% "spray-can" % sprayVersion)).
+  "io.spray" %% "spray-can" % sprayVersion,
+  "me.lessis" %% "courier" % courierVersion)).
   settings(name := "moonitor-principal")

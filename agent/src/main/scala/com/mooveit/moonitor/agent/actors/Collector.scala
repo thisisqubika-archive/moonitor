@@ -1,7 +1,7 @@
 package com.mooveit.moonitor.agent.actors
 
 import akka.actor.{Actor, Cancellable, Props}
-import com.mooveit.moonitor.domain.metrics.{MetricConfiguration, MetricValue}
+import com.mooveit.moonitor.domain.metrics.{MetricConfiguration, MetricResult}
 import com.mooveit.moonitor.agent.actors.Agent.MetricCollected
 import com.mooveit.moonitor.agent.actors.Collector.{ChangeFrequency, Collect}
 import com.mooveit.moonitor.agent.metrics.CollectionStrategyFactory._
@@ -37,7 +37,7 @@ class Collector(conf: MetricConfiguration) extends Actor {
 
   def updateAgent(value: Any) =
     context.parent !
-      MetricCollected(MetricValue(metric, currentTime, value))
+      MetricCollected(MetricResult(metric, currentTime, value))
 
   def collect() =
     Future { collectionStrategy.collect } map updateAgent

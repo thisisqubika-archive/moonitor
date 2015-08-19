@@ -3,7 +3,7 @@ package com.mooveit.moonitor.agent.actors
 import akka.actor.{Actor, PoisonPill, Props}
 import com.mooveit.moonitor.agent.actors.Agent._
 import com.mooveit.moonitor.agent.actors.Collector.ChangeFrequency
-import com.mooveit.moonitor.domain.metrics.{Metric, MetricConfiguration, MetricValue}
+import com.mooveit.moonitor.domain.metrics._
 
 class Agent(conf: Iterable[MetricConfiguration]) extends Actor {
 
@@ -52,7 +52,7 @@ class Agent(conf: Iterable[MetricConfiguration]) extends Actor {
 
     case Stop =>
       stopAllCollectors()
-      context.system.stop(self)
+      context stop self
   }
 }
 
@@ -61,7 +61,7 @@ object Agent {
   def props(configuration: Iterable[MetricConfiguration]) =
     Props(new Agent(configuration))
 
-  case class MetricCollected(status: MetricValue)
+  case class MetricCollected(status: MetricResult)
 
   case class StartCollecting(metricConfiguration: MetricConfiguration)
 
