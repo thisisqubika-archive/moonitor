@@ -4,8 +4,8 @@ import akka.actor.{Actor, ActorRef, Props}
 import com.mooveit.moonitor.agent.actors.Agent
 import com.mooveit.moonitor.agent.actors.Agent.Stop
 import com.mooveit.moonitor.domain.alerts.{AlertConfiguration, Operator}
-import com.mooveit.moonitor.domain.metrics.{MetricConfiguration, Metric}
-import com.mooveit.moonitor.principal.actors.ConfigurationStore.{RemoveHost, SaveHost, RetrieveConfiguredHosts}
+import com.mooveit.moonitor.domain.metrics.{MetricConfiguration, MetricId}
+import com.mooveit.moonitor.principal.actors.ConfigurationStore._
 import com.mooveit.moonitor.principal.actors.Mastermind._
 
 class Mastermind(store: ActorRef, confStore: ActorRef) extends Actor {
@@ -41,9 +41,9 @@ class Mastermind(store: ActorRef, confStore: ActorRef) extends Actor {
       }
       principals -= host
 
-    case StartCollecting(host, metric, frequency) =>
+    case StartCollecting(host, mconf) =>
       principals.get(host) foreach {
-        _ ! Agent.StartCollecting(MetricConfiguration(metric, frequency))
+        _ ! Agent.StartCollecting(mconf)
       }
 
     case StopCollecting(host, metric) =>
@@ -51,10 +51,10 @@ class Mastermind(store: ActorRef, confStore: ActorRef) extends Actor {
         _ ! Agent.StopCollecting(metric)
       }
 
-    case StartWatching(host, metric, operator, value, mailTo) =>
+    case StartWatching(host, metricId, operator, value, mailTo) =>
       principals.get(host) foreach {
         _ ! Watcher.StartWatching(
-              AlertConfiguration(metric, operator, value, mailTo))
+              AlertConfiguration(metricId, operator, value, mailTo))
       }
 
     case StopWatching(host, metric) =>
@@ -75,12 +75,12 @@ object Mastermind {
 
   case class StopHost(host: String)
 
-  case class StartCollecting(host: String, metric: Metric, frequency: Int)
+  case class StartCollecting(host: String, mconf: MetricConfiguration)
 
-  case class StopCollecting(host: String, metric: Metric)
+  case class StopCollecting(host: String, metricId: MetricId)
 
-  case class StartWatching(host: String, metric: Metric,
+  case class StartWatching(host: String, metricId: MetricId,
                            operator: Operator, value: Any, mailTo: String)
 
-  case class StopWatching(host: String, metric: Metric)
+  case class StopWatching(host: String, metricId: MetricId)
 }

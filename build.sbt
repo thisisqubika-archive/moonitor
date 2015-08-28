@@ -1,7 +1,11 @@
 resolvers in ThisBuild ++= Seq(
+  // Spray
   "Spray repository" at "http://repo.spray.io",
+  // Rediscala
   "rediscala" at "http://dl.bintray.com/etaty/maven",
-  "softprops-maven" at "http://dl.bintray.com/content/softprops/maven")
+  // Courier
+  "softprops-maven" at "http://dl.bintray.com/content/softprops/maven"
+)
 
 val configVersion = "1.3.0"
 val sprayVersion = "1.3.2"
@@ -29,24 +33,38 @@ lazy val commonDependencies = Seq(
   "com.typesafe.akka" %% "akka-testkit" % akkaTestkitVersion % "test",
   "org.scalatest" %% "scalatest" % scalatestVersion % "test")
 
-lazy val domain = (project in file("domain")).
-  settings(commonSettings: _*).
-  settings(libraryDependencies ++= Seq(
+lazy val jacksonDependencies = Seq(
+  "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
+  "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
+  "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion)
+
+lazy val sprayDependencies = Seq(
   "io.spray" %% "spray-json" % sprayVersion,
   "io.spray" %% "spray-http" % sprayVersion,
   "io.spray" %% "spray-routing" % sprayVersion,
-  "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
-  "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
-  "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion,
-  "com.etaty.rediscala" %% "rediscala" % rediscalaVersion)).
-  settings(name := "moonitor-common")
+  "io.spray" %% "spray-can" % sprayVersion)
 
-lazy val agent = (project in file("agent")).
-  dependsOn(domain).
-  settings(commonSettings: _*).
-  settings(libraryDependencies ++= commonDependencies).
-  settings(libraryDependencies += "org.fusesource" % "sigar" % sigarVersion).
-  settings(name := "moonitor-agent",
+lazy val rediscalaDependencies = Seq(
+  "com.etaty.rediscala" %% "rediscala" % rediscalaVersion,
+  "com.etaty.rediscala" %% "rediscala" % rediscalaVersion)
+
+lazy val domain = (project in file("domain"))
+  .settings(commonSettings: _*)
+  .settings(name := "moonitor-common")
+
+lazy val collectorDependencies = Seq(
+  "org.fusesource" % "sigar" % sigarVersion
+)
+
+lazy val collector = (project in file("collector"))
+  .settings(commonSettings: _*)
+  .settings(
+    name := "moonitor-collector",
+    libraryDependencies ++= collectorDependencies
+  )
+  .dependsOn(domain)
+
+lazy val agentPackageSettings = Seq(
   bashScriptExtraDefines += """addJava "-Djava.library.path=${app_home}/../lib"""",
   maintainer in Linux := "Enrique Rodriguez <enrique.rodriguez@moove-it.com>",
   packageSummary in Linux := "Monitor agent.",
@@ -55,17 +73,44 @@ lazy val agent = (project in file("agent")).
   daemonGroup in Linux := (daemonUser in Linux).value,
   rpmVendor := "Moove-it",
   rpmLicense := Some("Apache License"),
-  packageArchitecture in Rpm := "x86_64").
-  enablePlugins(JavaServerAppPackaging)
+  packageArchitecture in Rpm := "x86_64"
+)
 
-lazy val principal = (project in file("principal")).
-  dependsOn(domain, agent).
-  settings(commonSettings: _*).
-  settings(libraryDependencies ++= commonDependencies).
-  settings(libraryDependencies ++= Seq(
-  "com.etaty.rediscala" %% "rediscala" % rediscalaVersion,
-  "org.scalaj" %% "scalaj-http" % scalajVersion,
-  "io.spray" %% "spray-can" % sprayVersion,
-  "me.lessis" %% "courier" % courierVersion)).
-  settings(name := "moonitor-principal").
-  enablePlugins(JavaAppPackaging)
+lazy val agentDependencies = commonDependencies :+ "org.fusesource" % "sigar" % sigarVersion
+
+lazy val agent = (project in file("agent"))
+  .settings(commonSettings: _*)
+  .settings(
+    name := "moonitor-agent",
+    libraryDependencies ++= agentDependencies
+  )
+  .settings(agentPackageSettings: _*)
+  .dependsOn(domain, collector)
+  .enablePlugins(JavaServerAppPackaging)
+
+lazy val principalPackageSettings = Seq(
+  maintainer in Linux := "Enrique Rodriguez <enrique.rodriguez@moove-it.com>",
+  packageSummary in Linux := "Monitor principal.",
+  packageDescription in Linux := "Monitor principal.",
+  daemonUser in Linux := "mooveit",
+  daemonGroup in Linux := (daemonUser in Linux).value,
+  rpmVendor := "Moove-it",
+  rpmLicense := Some("Apache License"),
+  packageArchitecture in Rpm := "x86_64"
+)
+
+lazy val principalDependencies =
+  commonDependencies ++ jacksonDependencies ++
+  sprayDependencies ++ rediscalaDependencies :+
+  "org.scalaj" %% "scalaj-http" % scalajVersion :+
+  "me.lessis" %% "courier" % courierVersion
+
+lazy val principal = (project in file("principal"))
+  .settings(commonSettings: _*)
+  .settings(
+    name := "moonitor-principal",
+    libraryDependencies ++= principalDependencies
+  )
+  .settings(principalPackageSettings: _*)
+  .dependsOn(domain, agent)
+  .enablePlugins(JavaServerAppPackaging)

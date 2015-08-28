@@ -1,12 +1,11 @@
 package com.mooveit.moonitor.agent.actors
 
 import akka.actor.{Actor, Cancellable, Props}
-import com.mooveit.moonitor.domain.metrics.{MetricConfiguration, MetricResult}
+import com.mooveit.moonitor.agent.CollectionStrategyLoader
+import com.mooveit.moonitor.domain.metrics._
 import com.mooveit.moonitor.agent.actors.Agent.MetricCollected
 import com.mooveit.moonitor.agent.actors.Collector.{ChangeFrequency, Collect}
-import com.mooveit.moonitor.agent.metrics.CollectionStrategyFactory._
 
-import scala.compat.Platform._
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
@@ -15,8 +14,9 @@ class Collector(conf: MetricConfiguration) extends Actor {
   import context.dispatcher
 
   private var scheduledCollection: Cancellable = _
-  private val metric = conf.metric
-  private val collectionStrategy = getCollectionStrategy(metric)
+  private val collectionStrategy =
+    CollectionStrategyLoader.
+      loadCollectionStrategy(conf.metricId, conf.packageName)
 
   override def preStart() = {
     scheduleCollection(conf.frequency)
@@ -35,17 +35,14 @@ class Collector(conf: MetricConfiguration) extends Actor {
     scheduleCollection(newFrequency)
   }
 
-  def updateAgent(value: Any) =
+  def updateAgent(result: MetricResult) =
     context.parent !
-      MetricCollected(MetricResult(metric, currentTime, value))
-
-  def collect() =
-    Future { collectionStrategy.collect } map updateAgent
+      MetricCollected(conf.metricId, result)
 
   override def receive = {
     case ChangeFrequency(newFrequency) => changeFrequency(newFrequency)
 
-    case Collect => collect()
+    case Collect => Future { collectionStrategy.collect } map updateAgent
   }
 }
 

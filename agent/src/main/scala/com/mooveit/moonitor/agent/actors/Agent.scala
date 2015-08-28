@@ -13,7 +13,7 @@ class Agent(conf: Iterable[MetricConfiguration]) extends Actor {
     conf.map(createCollectorMapping).toMap
 
   def createCollectorMapping(m: MetricConfiguration) =
-    m.metric -> createCollectorActor(m)
+    m.metricId -> createCollectorActor(m)
 
   def createCollectorActor(conf: MetricConfiguration) =
     context.actorOf(Collector.props(conf))
@@ -27,7 +27,7 @@ class Agent(conf: Iterable[MetricConfiguration]) extends Actor {
   }
 
   def startCollecting(mconf: MetricConfiguration) = {
-    collectors.get(mconf.metric) match {
+    collectors.get(mconf.metricId) match {
       case Some(collector) =>
         collector ! ChangeFrequency(mconf.frequency)
 
@@ -36,8 +36,8 @@ class Agent(conf: Iterable[MetricConfiguration]) extends Actor {
     }
   }
 
-  def stopCollecting(metric: Metric) =
-    collectors.get(metric).foreach(_ ! PoisonPill)
+  def stopCollecting(mid: MetricId) =
+    collectors.get(mid).foreach(_ ! PoisonPill)
 
   def notifyPrincipal(mc: MetricCollected) = context.parent ! mc
 
@@ -46,7 +46,7 @@ class Agent(conf: Iterable[MetricConfiguration]) extends Actor {
 
     case StartCollecting(mconf) => startCollecting(mconf)
 
-    case StopCollecting(metric) => stopCollecting(metric)
+    case StopCollecting(mid) => stopCollecting(mid)
 
     case ResetCollectors(mconfs) => resetCollectors(mconfs)
 
@@ -61,13 +61,13 @@ object Agent {
   def props(configuration: Iterable[MetricConfiguration]) =
     Props(new Agent(configuration))
 
-  case class MetricCollected(status: MetricResult)
+  case class MetricCollected(id: MetricId, result: MetricResult)
 
-  case class StartCollecting(metricConfiguration: MetricConfiguration)
+  case class StartCollecting(configuration: MetricConfiguration)
 
-  case class StopCollecting(metric: Metric)
+  case class StopCollecting(id: MetricId)
 
-  case class ResetCollectors(conf: Iterable[MetricConfiguration])
+  case class ResetCollectors(configuration: Iterable[MetricConfiguration])
 
   case object Stop
 }

@@ -9,8 +9,8 @@ import com.mooveit.moonitor.domain.metrics.MetricConfiguration
 import com.mooveit.moonitor.principal.Main
 import com.mooveit.moonitor.principal.actors.ConfigurationStore._
 import com.mooveit.moonitor.principal.actors.MetricsStore.Save
-import com.mooveit.moonitor.principal.actors.Principal.{AlertsConfiguration, MetricsConfiguration}
-import com.mooveit.moonitor.principal.actors.Watcher.{StartWatching, StopWatching}
+import com.mooveit.moonitor.principal.actors.Principal._
+import com.mooveit.moonitor.principal.actors.Watcher._
 
 class Principal(host: String, store: ActorRef, confStore: ActorRef)
   extends Actor {
@@ -63,8 +63,8 @@ class Principal(host: String, store: ActorRef, confStore: ActorRef)
       watcher ! PoisonPill
       context stop self
 
-    case metricCollected @ MetricCollected(metricValue) =>
-      store ! Save(host, metricValue)
+    case metricCollected @ MetricCollected(id, result) =>
+      store ! Save(host, id, result)
       watcher ! metricCollected
   }
 }

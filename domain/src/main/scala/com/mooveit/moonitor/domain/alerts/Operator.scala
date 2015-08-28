@@ -1,9 +1,5 @@
 package com.mooveit.moonitor.domain.alerts
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id
-
-@JsonTypeInfo(use = Id.CLASS)
 sealed trait Operator {
 
   def eval(a: Any, b: Any) = a match {

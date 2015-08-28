@@ -26,7 +26,7 @@ class MailInformer extends Actor {
       mailer(
         Envelope.from(new InternetAddress(from))
           .to(new InternetAddress(aconf.mailTo))
-          .subject(s"$host: ${aconf.metric.toString} ${aconf.operator} ${aconf.value}")
+          .subject(s"$host: ${aconf.metricId.toString} ${aconf.operator} ${aconf.value}")
       )
   }
 }

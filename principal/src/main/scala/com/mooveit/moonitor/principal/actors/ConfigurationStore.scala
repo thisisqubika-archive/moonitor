@@ -2,13 +2,13 @@ package com.mooveit.moonitor.principal.actors
 
 import akka.actor.Actor
 import com.mooveit.moonitor.domain.alerts.AlertConfiguration
-import com.mooveit.moonitor.domain.metrics.{Metric, MetricConfiguration}
+import com.mooveit.moonitor.domain.metrics.{MetricId, MetricConfiguration}
 import com.mooveit.moonitor.principal.actors.ConfigurationStore._
 import com.mooveit.moonitor.principal.actors.Mastermind.ConfiguredHosts
 import com.mooveit.moonitor.principal.actors.Principal.{AlertsConfiguration, MetricsConfiguration}
 import redis.RedisClient
 
-import com.mooveit.moonitor.domain.serialization.JacksonJsonSupport._
+import com.mooveit.moonitor.principal.serialization.JacksonJsonSupport._
 
 class ConfigurationStore extends Actor {
 
@@ -45,13 +45,13 @@ class ConfigurationStore extends Actor {
       repo.del(makeMetricsKey(host))
 
     case SaveMetric(host, mconf) =>
-      repo.hset(makeMetricsKey(host), mconf.metric.toString, mconf)
+      repo.hset(makeMetricsKey(host), mconf.metricId.toString, mconf)
 
     case RemoveMetric(host, metric) =>
       repo.hdel(makeMetricsKey(host), metric.toString)
 
     case SaveAlert(host, aconf) =>
-      repo.hset(makeAlertsKey(host), aconf.metric.toString, aconf)
+      repo.hset(makeAlertsKey(host), aconf.metricId.toString, aconf)
 
     case RemoveAlert(host, metric) =>
       repo.hdel(makeAlertsKey(host), metric.toString)
@@ -72,9 +72,9 @@ object ConfigurationStore {
 
   case class SaveMetric(host: String, mconf: MetricConfiguration)
 
-  case class RemoveMetric(host: String, metric: Metric)
+  case class RemoveMetric(host: String, metricId: MetricId)
 
   case class SaveAlert(host: String, aconf: AlertConfiguration)
 
-  case class RemoveAlert(host: String, metric: Metric)
+  case class RemoveAlert(host: String, metricId: MetricId)
 }

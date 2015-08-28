@@ -1,4 +1,4 @@
-package com.mooveit.moonitor.domain.serialization
+package com.mooveit.moonitor.principal.serialization
 
 import akka.util.ByteString
 import com.fasterxml.jackson.databind.ObjectMapper

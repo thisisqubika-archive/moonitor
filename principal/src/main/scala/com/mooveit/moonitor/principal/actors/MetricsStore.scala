@@ -1,31 +1,32 @@
 package com.mooveit.moonitor.principal.actors
 
-import akka.actor.Actor
-import com.mooveit.moonitor.domain.metrics.MetricResult
+import akka.actor.{ActorLogging, Actor}
+import com.mooveit.moonitor.domain.metrics.{MetricId, MetricResult}
 import com.mooveit.moonitor.principal.Main
 import com.mooveit.moonitor.principal.actors.MetricsStore.Save
 
 import scalaj.http.Http
 
-class MetricsStore extends Actor {
+class MetricsStore extends Actor with ActorLogging {
 
   val config = Main.config
   
-  def sanitize(measurement: String) =
-    """(\.|=|,)""".r.replaceAllIn(measurement, """\\$1""")
+  def sanitize(measurement: MetricId) =
+    """(\.|=|,)""".r.replaceAllIn(measurement.toString, """\\$1""")
 
   override def receive = {
-    case Save(host, MetricResult(metric, timestamp, value)) =>
-      Http(config.getString("influxdb.write_url")).
-        params(("db", s"metrics-$host"), ("precision", "ms")).
-        postData(s"${sanitize(metric.toString)} value=$value $timestamp").
-        asString
+    case Save(host, metricId, MetricResult(timestamp, value)) =>
+      val r =
+        Http(config.getString("influxdb.write_url")).
+          params(("db", s"metrics-$host"), ("precision", "ms")).
+          postData(s"${sanitize(metricId)} value=$value $timestamp").
+          asString
+
+      log.debug(s"Response: ${r.code}. ${r.headers} || ${r.body}")
   }
 }
 
 object MetricsStore {
 
-  case class Save(host: String, status: MetricResult)
-
-  case class MetricDocument(timestamp: String, value: Any)
+  case class Save(host: String, metricId: MetricId, metricResult: MetricResult)
 }

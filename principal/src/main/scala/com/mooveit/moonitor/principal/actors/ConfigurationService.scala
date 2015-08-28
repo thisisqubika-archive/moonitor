@@ -2,8 +2,8 @@ package com.mooveit.moonitor.principal.actors
 
 import akka.actor.{ActorRef, Props}
 import com.mooveit.moonitor.domain.alerts.AlertConfiguration
-import com.mooveit.moonitor.domain.metrics.{Metric, MetricConfiguration}
-import com.mooveit.moonitor.domain.serialization.JacksonJsonSupport._
+import com.mooveit.moonitor.domain.metrics.{MetricId, MetricConfiguration}
+import com.mooveit.moonitor.principal.serialization.JacksonJsonSupport._
 import com.mooveit.moonitor.principal.actors.Mastermind._
 import spray.http.MediaTypes.`application/json`
 import spray.routing.HttpServiceActor
@@ -32,15 +32,15 @@ class ConfigurationService(mastermind: ActorRef) extends HttpServiceActor {
             entity(as[MetricConfiguration]) { mconf =>
               complete {
                 mastermind !
-                  StartCollecting(host, mconf.metric, mconf.frequency)
+                  StartCollecting(host, mconf)
                 "Ok"
               }
             }
           } ~
           delete {
-            entity(as[Metric]) { metric =>
+            entity(as[MetricId]) { metricId =>
               complete {
-                mastermind ! StopCollecting(host, metric)
+                mastermind ! StopCollecting(host, metricId)
                 "Ok"
               }
             }
@@ -53,16 +53,16 @@ class ConfigurationService(mastermind: ActorRef) extends HttpServiceActor {
             entity(as[AlertConfiguration]) { aconf =>
               complete {
                 mastermind !
-                  StartWatching(host, aconf.metric, aconf.operator,
+                  StartWatching(host, aconf.metricId, aconf.operator,
                     aconf.value, aconf.mailTo)
                 "Ok"
               }
             }
           } ~
           delete {
-            entity(as[Metric]) { metric =>
+            entity(as[MetricId]) { metricId =>
               complete {
-                mastermind ! StopWatching(host, metric)
+                mastermind ! StopWatching(host, metricId)
                 "Ok"
               }
             }
