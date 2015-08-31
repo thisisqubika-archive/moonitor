@@ -31,8 +31,7 @@ class ConfigurationService(mastermind: ActorRef) extends HttpServiceActor {
           put {
             entity(as[MetricConfiguration]) { mconf =>
               complete {
-                mastermind !
-                  StartCollecting(host, mconf)
+                mastermind ! StartCollecting(host, mconf)
                 "Ok"
               }
             }
@@ -52,9 +51,7 @@ class ConfigurationService(mastermind: ActorRef) extends HttpServiceActor {
           put {
             entity(as[AlertConfiguration]) { aconf =>
               complete {
-                mastermind !
-                  StartWatching(host, aconf.metricId, aconf.operator,
-                    aconf.value, aconf.mailTo)
+                mastermind ! StartWatching(host, aconf)
                 "Ok"
               }
             }

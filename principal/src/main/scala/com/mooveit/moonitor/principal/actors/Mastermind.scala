@@ -51,16 +51,17 @@ class Mastermind(store: ActorRef, confStore: ActorRef) extends Actor {
         _ ! Agent.StopCollecting(metric)
       }
 
-    case StartWatching(host, metricId, operator, value, mailTo) =>
+    case StartWatching(host, aconf) =>
       principals.get(host) foreach {
-        _ ! Watcher.StartWatching(
-              AlertConfiguration(metricId, operator, value, mailTo))
+        _ ! Watcher.StartWatching(aconf)
       }
 
     case StopWatching(host, metric) =>
       principals.get(host) foreach {
         _ ! Watcher.StopWatching(metric)
       }
+
+    case GetPrincipals => sender() ! principals
   }
 }
 
@@ -71,6 +72,11 @@ object Mastermind {
   
   case class ConfiguredHosts(hosts: Iterable[String])
 
+  object ConfiguredHosts {
+
+    def apply(hosts: String*): ConfiguredHosts = apply(hosts)
+  }
+
   case class StartHost(host: String)
 
   case class StopHost(host: String)
@@ -79,8 +85,9 @@ object Mastermind {
 
   case class StopCollecting(host: String, metricId: MetricId)
 
-  case class StartWatching(host: String, metricId: MetricId,
-                           operator: Operator, value: Any, mailTo: String)
+  case class StartWatching(host: String, aconf: AlertConfiguration)
 
   case class StopWatching(host: String, metricId: MetricId)
+
+  case object GetPrincipals
 }

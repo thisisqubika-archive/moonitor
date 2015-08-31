@@ -4,7 +4,7 @@ import akka.actor.{Actor, ActorRef, Props}
 import com.mooveit.moonitor.agent.actors.Agent.MetricCollected
 import com.mooveit.moonitor.domain.alerts.AlertConfiguration
 import com.mooveit.moonitor.domain.metrics.MetricId
-import com.mooveit.moonitor.principal.actors.MailInformer.Alert
+import com.mooveit.moonitor.principal.actors.MailInformer._
 import com.mooveit.moonitor.principal.actors.Watcher._
 
 class Watcher(host: String,
@@ -13,6 +13,7 @@ class Watcher(host: String,
   extends Actor {
 
   private var configuration = conf.map(aconf => aconf.metricId -> aconf).toMap
+  private var alerted = Set[MetricId]()
 
   override def receive = {
     case StartWatching(aconf) =>
@@ -21,12 +22,21 @@ class Watcher(host: String,
     case StopWatching(metric) =>
       configuration -= metric
 
-    case MetricCollected(name, result) =>
-      for (aconf <- configuration.get(name)) {
-        if (aconf.operator.eval(result.value, aconf.value)) {
+    case MetricCollected(metricId, result) =>
+      for (aconf <- configuration.get(metricId)) {
+        val evaluated = aconf.operator.eval(result.value, aconf.value)
+        lazy val alreadyAlerted = alerted.contains(metricId)
+
+        if (evaluated && !alreadyAlerted) {
           informer ! Alert(host, aconf)
+          alerted += metricId
+        } else if (!evaluated && alreadyAlerted) {
+          informer ! AlertCleared(host, aconf)
+          alerted -= metricId
         }
       }
+
+    case GetConfiguration => sender() ! configuration
   }
 }
 
@@ -40,4 +50,6 @@ object Watcher {
   case class StartWatching(aconf: AlertConfiguration)
 
   case class StopWatching(metricId: MetricId)
+
+  case object GetConfiguration
 }

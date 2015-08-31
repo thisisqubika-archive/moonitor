@@ -15,10 +15,12 @@ class Agent(conf: Iterable[MetricConfiguration]) extends Actor {
   def createCollectorMapping(m: MetricConfiguration) =
     m.metricId -> createCollectorActor(m)
 
-  def createCollectorActor(conf: MetricConfiguration) =
-    context.actorOf(Collector.props(conf))
+  def createCollectorActor(conf: MetricConfiguration) = {
+    val id = s"collector-${conf.metricId.className}-${conf.metricId.params}"
+    context.actorOf(Collector.props(conf), id)
+  }
 
-  def stopAllCollectors() =
+  private def stopAllCollectors() =
     collectors.values.foreach(_ ! PoisonPill)
 
   def resetCollectors(conf: Iterable[MetricConfiguration]) = {
@@ -36,8 +38,10 @@ class Agent(conf: Iterable[MetricConfiguration]) extends Actor {
     }
   }
 
-  def stopCollecting(mid: MetricId) =
+  def stopCollecting(mid: MetricId) = {
     collectors.get(mid).foreach(_ ! PoisonPill)
+    collectors -= mid
+  }
 
   def notifyPrincipal(mc: MetricCollected) = context.parent ! mc
 
@@ -50,8 +54,12 @@ class Agent(conf: Iterable[MetricConfiguration]) extends Actor {
 
     case ResetCollectors(mconfs) => resetCollectors(mconfs)
 
+    case GetCollectors => sender() ! collectors
+
+    case StopAllCollectors => resetCollectors(Seq.empty)
+
     case Stop =>
-      stopAllCollectors()
+      resetCollectors(Seq.empty)
       context stop self
   }
 }
@@ -68,6 +76,10 @@ object Agent {
   case class StopCollecting(id: MetricId)
 
   case class ResetCollectors(configuration: Iterable[MetricConfiguration])
+
+  case object StopAllCollectors
+
+  case object GetCollectors
 
   case object Stop
 }

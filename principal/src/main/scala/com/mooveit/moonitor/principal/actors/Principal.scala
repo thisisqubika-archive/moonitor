@@ -6,7 +6,6 @@ import com.mooveit.moonitor.agent.actors.Agent
 import com.mooveit.moonitor.agent.actors.Agent._
 import com.mooveit.moonitor.domain.alerts.AlertConfiguration
 import com.mooveit.moonitor.domain.metrics.MetricConfiguration
-import com.mooveit.moonitor.principal.Main
 import com.mooveit.moonitor.principal.actors.ConfigurationStore._
 import com.mooveit.moonitor.principal.actors.MetricsStore.Save
 import com.mooveit.moonitor.principal.actors.Principal._
@@ -15,7 +14,7 @@ import com.mooveit.moonitor.principal.actors.Watcher._
 class Principal(host: String, store: ActorRef, confStore: ActorRef)
   extends Actor {
 
-  val config = Main.config
+  val config = context.system.settings.config
   private var agent: ActorRef = _
   private var watcher: ActorRef = _
   private val mailInformer = context.actorOf(Props[MailInformer])
@@ -37,10 +36,12 @@ class Principal(host: String, store: ActorRef, confStore: ActorRef)
   override def receive = {
     case MetricsConfiguration(metricsConfig) =>
       val deploy = agentDeployConfig
-      agent = context.actorOf(Agent.props(metricsConfig).withDeploy(deploy))
+      val props = Agent.props(metricsConfig).withDeploy(deploy)
+      agent = context.actorOf(props, s"agent-$host")
 
     case AlertsConfiguration(alertsConfig) =>
-      watcher = context.actorOf(Watcher.props(host, alertsConfig, mailInformer))
+      watcher = context.actorOf(
+        Watcher.props(host, alertsConfig, mailInformer), s"watcher-$host")
 
     case startCollecting @ StartCollecting(mconf) =>
       confStore ! SaveMetric(host, mconf)
@@ -71,10 +72,20 @@ class Principal(host: String, store: ActorRef, confStore: ActorRef)
 
 object Principal {
 
-  def props(host: String, repository: ActorRef, confRepository: ActorRef) =
-    Props(new Principal(host, repository, confRepository))
+  def props(host: String, store: ActorRef, confStore: ActorRef) =
+    Props(new Principal(host, store, confStore))
 
   case class MetricsConfiguration(conf: Iterable[MetricConfiguration])
 
+  object MetricsConfiguration {
+
+    def apply(confs: MetricConfiguration*): MetricsConfiguration = apply(confs)
+  }
+
   case class AlertsConfiguration(conf: Iterable[AlertConfiguration])
+
+  object AlertsConfiguration {
+
+    def apply(confs: AlertConfiguration*): AlertsConfiguration = apply(confs)
+  }
 }

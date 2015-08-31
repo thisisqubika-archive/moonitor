@@ -2,14 +2,13 @@ package com.mooveit.moonitor.principal.actors
 
 import akka.actor.{ActorLogging, Actor}
 import com.mooveit.moonitor.domain.metrics.{MetricId, MetricResult}
-import com.mooveit.moonitor.principal.Main
 import com.mooveit.moonitor.principal.actors.MetricsStore.Save
 
 import scalaj.http.Http
 
 class MetricsStore extends Actor with ActorLogging {
 
-  val config = Main.config
+  val config = context.system.settings.config
   
   def sanitize(measurement: MetricId) =
     """(\.|=|,)""".r.replaceAllIn(measurement.toString, """\\$1""")

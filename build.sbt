@@ -34,7 +34,6 @@ lazy val commonDependencies = Seq(
   "org.scalatest" %% "scalatest" % scalatestVersion % "test")
 
 lazy val jacksonDependencies = Seq(
-  "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
   "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
   "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion)
 
@@ -48,9 +47,15 @@ lazy val rediscalaDependencies = Seq(
   "com.etaty.rediscala" %% "rediscala" % rediscalaVersion,
   "com.etaty.rediscala" %% "rediscala" % rediscalaVersion)
 
+lazy val domainDependencies = Seq(
+  "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion)
+
 lazy val domain = (project in file("domain"))
   .settings(commonSettings: _*)
-  .settings(name := "moonitor-common")
+  .settings(
+    name := "moonitor-common",
+    libraryDependencies ++= domainDependencies
+  )
 
 lazy val collectorDependencies = Seq(
   "org.fusesource" % "sigar" % sigarVersion
@@ -103,7 +108,8 @@ lazy val principalDependencies =
   commonDependencies ++ jacksonDependencies ++
   sprayDependencies ++ rediscalaDependencies :+
   "org.scalaj" %% "scalaj-http" % scalajVersion :+
-  "me.lessis" %% "courier" % courierVersion
+  "me.lessis" %% "courier" % courierVersion :+
+  "io.spray" %% "spray-testkit" % sprayVersion % "test"
 
 lazy val principal = (project in file("principal"))
   .settings(commonSettings: _*)

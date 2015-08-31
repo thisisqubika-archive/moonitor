@@ -4,15 +4,14 @@ import javax.mail.internet.InternetAddress
 
 import akka.actor.Actor
 import com.mooveit.moonitor.domain.alerts.AlertConfiguration
-import com.mooveit.moonitor.principal.Main
-import com.mooveit.moonitor.principal.actors.MailInformer.Alert
+import com.mooveit.moonitor.principal.actors.MailInformer._
 import courier._
 
 class MailInformer extends Actor {
 
   import context.dispatcher
 
-  val config = Main.config
+  val config = context.system.settings.config
   val from = config.getString("smtp.user")
 
   private val mailer =
@@ -26,7 +25,18 @@ class MailInformer extends Actor {
       mailer(
         Envelope.from(new InternetAddress(from))
           .to(new InternetAddress(aconf.mailTo))
-          .subject(s"$host: ${aconf.metricId.toString} ${aconf.operator} ${aconf.value}")
+          .subject(s"Alert on $host")
+          .content(Text(s"${aconf.metricId.toString}" +
+                        s"${aconf.operator} ${aconf.value}"))
+      )
+
+    case AlertCleared(host, aconf) =>
+      mailer(
+      Envelope.from(new InternetAddress(from))
+        .to(new InternetAddress(aconf.mailTo))
+        .subject(s"Cleared alert on $host")
+        .content(Text(s"${aconf.metricId.toString}" +
+                      s"${aconf.operator} ${aconf.value}"))
       )
   }
 }
@@ -34,4 +44,6 @@ class MailInformer extends Actor {
 object MailInformer {
 
   case class Alert(host: String, aconf: AlertConfiguration)
+
+  case class AlertCleared(host: String, aconf: AlertConfiguration)
 }
