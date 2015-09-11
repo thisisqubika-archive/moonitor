@@ -1,4 +1,4 @@
-# ${1:Moonitor}
+# Moonitor
 Moonitor is a monitoring tool that collects information from a list of 
 configured hosts and saves this information in a time series database.
 
