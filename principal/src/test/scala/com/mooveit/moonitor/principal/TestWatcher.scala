@@ -13,9 +13,10 @@ import scala.concurrent.duration._
 
 class TestWatcher extends UnitSpec("Watcher") {
 
-  val testClassName = "com.mooveit.moonitor.agent.TestMetricStrategy"
-  val testMetricId1 = MetricId(testClassName, "1")
-  val testMetricId2 = MetricId(testClassName, "2")
+  val testPackageName = "com.mooveit.moonitor.agent"
+  val testClassName = "TestMetricStrategy"
+  val testMetricId1 = MetricId(testPackageName, testClassName, "1")
+  val testMetricId2 = MetricId(testPackageName, testClassName, "2")
 
   val informer = TestProbe()
   val watcher = TestActorRef(Watcher.props("localhost",

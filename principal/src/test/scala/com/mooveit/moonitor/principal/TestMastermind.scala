@@ -14,8 +14,9 @@ import scala.concurrent.duration._
 
 class TestMastermind extends UnitSpec("Mastermind") {
 
-  val testClassName = "com.mooveit.moonitor.principal.TestMetricStrategy"
-  val testMetricId = MetricId(testClassName, "1")
+  val testPackageName = "com.mooveit.moonitor.principal"
+  val testClassName = "TestMetricStrategy"
+  val testMetricId = MetricId(testPackageName, testClassName, "1")
   val metricConfiguration = MetricConfiguration(testMetricId, 1000)
   val alertConfiguration = AlertConfiguration(testMetricId, Gt, 1000, "")
 

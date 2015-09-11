@@ -16,8 +16,9 @@ class TestConfigurationService extends RouteTestSpec {
       ConfigurationService.props(mastermind.ref))
   val route = configurationService.underlyingActor.crudService
 
-  val testClassName = "com.mooveit.moonitor.principal.TestMetricStrategy"
-  val testMetricId = MetricId(testClassName, "1")
+  val testPackageName = "com.mooveit.moonitor.principal"
+  val testClassName = "TestMetricStrategy"
+  val testMetricId = MetricId(testPackageName, testClassName, "1")
   val mconf = MetricConfiguration(testMetricId, 1000)
   val aconf = AlertConfiguration(testMetricId, Gt, 1000, "")
 

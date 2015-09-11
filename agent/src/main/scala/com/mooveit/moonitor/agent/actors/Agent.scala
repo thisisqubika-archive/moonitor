@@ -15,10 +15,8 @@ class Agent(conf: Iterable[MetricConfiguration]) extends Actor {
   def createCollectorMapping(m: MetricConfiguration) =
     m.metricId -> createCollectorActor(m)
 
-  def createCollectorActor(conf: MetricConfiguration) = {
-    val id = s"collector-${conf.metricId.className}-${conf.metricId.params}"
-    context.actorOf(Collector.props(conf), id)
-  }
+  def createCollectorActor(conf: MetricConfiguration) =
+    context.actorOf(Collector.props(conf))
 
   private def stopAllCollectors() =
     collectors.values.foreach(_ ! PoisonPill)

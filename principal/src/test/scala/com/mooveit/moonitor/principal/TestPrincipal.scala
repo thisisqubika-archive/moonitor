@@ -20,8 +20,9 @@ class TestPrincipal extends UnitSpec("Principal") {
   val principal =
     TestActorRef(Principal.props("localhost", store.ref, confStore.ref))
 
-  val testClassName = "com.mooveit.moonitor.principal.TestMetricStrategy"
-  val testMetricId = MetricId(testClassName, "1")
+  val testPackageName = "com.mooveit.moonitor.principal"
+  val testClassName = "TestMetricStrategy"
+  val testMetricId = MetricId(testPackageName, testClassName, "1")
   val testConfiguration = MetricConfiguration(testMetricId, 1000)
 
   "A principal" when {

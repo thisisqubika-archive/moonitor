@@ -20,7 +20,8 @@ object CollectionStrategyLoader {
         new URLClassLoader(Array(new URL(path)), parentLoader)
       }
 
-    val classToLoad = Class.forName(metricId.className, true, loader)
+    val className = s"${metricId.packageName}.${metricId.className}"
+    val classToLoad = Class.forName(className, true, loader)
     val instance =
       Try(classToLoad.getConstructor(classOf[String])) match {
         case Success(c) => c.newInstance(metricId.params)

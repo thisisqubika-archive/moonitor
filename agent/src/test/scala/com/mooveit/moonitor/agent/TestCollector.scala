@@ -10,8 +10,9 @@ import scala.concurrent.duration._
 
 class TestCollector extends UnitSpec("Collector") {
 
-  val testClassName = "com.mooveit.moonitor.agent.TestMetricStrategy"
-  val testMetricId = MetricId(testClassName, "param")
+  val testPackageName = "com.mooveit.moonitor.agent"
+  val testClassName = "TestMetricStrategy"
+  val testMetricId = MetricId(testPackageName, testClassName, "param")
   val mconf = MetricConfiguration(testMetricId, 1000)
 
   val agent = TestProbe()

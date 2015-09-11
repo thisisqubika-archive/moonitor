@@ -11,8 +11,9 @@ import scala.concurrent.duration._
 
 class TestAgent extends UnitSpec("Agent") {
 
-  val testClassName = "com.mooveit.moonitor.agent.TestMetricStrategy"
-  val testMetricId = MetricId(testClassName, "param")
+  val testPackageName = "com.mooveit.moonitor.agent"
+  val testClassName = "TestMetricStrategy"
+  val testMetricId = MetricId(testPackageName, testClassName, "param")
 
   "An agent" when {
     val principal = TestProbe()
@@ -52,7 +53,7 @@ class TestAgent extends UnitSpec("Agent") {
       }
 
       "metric collection doesn't exist" should {
-        val metricId = MetricId(testClassName, "another-param")
+        val metricId = MetricId(testPackageName, testClassName, "another-param")
 
         "create new collector" in {
           agent ! StartCollecting(MetricConfiguration(metricId, 2000))
@@ -76,7 +77,8 @@ class TestAgent extends UnitSpec("Agent") {
 
       "metric collection doesn't exist" should {
         "do nothing" in {
-          agent ! StopCollecting(MetricId(testClassName, "more-params"))
+          val id = MetricId(testPackageName, testClassName, "more-params")
+          agent ! StopCollecting(id)
           agent ! GetCollectors
           val collectors =
             receiveOne(1.second).asInstanceOf[Map[MetricId, ActorRef]]
@@ -88,7 +90,7 @@ class TestAgent extends UnitSpec("Agent") {
 
     "receives ResetCollectors" should {
       "set new collector" in {
-        val id = MetricId(testClassName, "reset-params")
+        val id = MetricId(testPackageName, testClassName, "reset-params")
         agent ! ResetCollectors(Seq(MetricConfiguration(id, 1000)))
         agent ! GetCollectors
         val collectors =
