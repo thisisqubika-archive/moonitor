@@ -50,22 +50,115 @@ $ ./agent/target/universal/stage/bin/moonitor-agent
 ## Installation
 In order to install the agent or the principal as OS services, an easy way is 
 to use sbt-native-packager with the `JavaServerAppPackaging` plugin. To do 
-this, just run `rpm:packageBin` or `debian:packageBin`, depending on the 
+this, just run `rpm:packageBin` or `debian:packageBin` from the corresponding subproject, depending on the 
 target platform.
-If you chose rpm, then the target .rpm file will be:
-agent/target/rpm/RPMS/x86_64/moonitor-agent-0.1-1.x86_64.rpm
+For example, to generate the agent's rpm package:
+```
+$ sbt
+> project agent
+> rpm:packageBin
+```
+Then the target .rpm file will be:
+`agent/target/rpm/RPMS/x86_64/moonitor-agent-0.1-1.x86_64.rpm`.
 And you can install it with the following command:
+```
 $ sudo rpm -i moonitor-agent-0.1-1.x86_64.rpm
+```
 
 If you chose debian, the .deb file will be:
-agent/target/moonitor-agent_0.1_all.deb
+`agent/target/moonitor-agent_0.1_all.deb`.
 To install it in a debian system:
-sudo dpkg -i moonitor-agent_0.1_all.deb
+```
+$ sudo dpkg -i moonitor-agent_0.1_all.deb
+```
 
 The installation of these packages will create the corresponding file 
 structure (see  documentation), and add it as a system service. You cant start 
 and stop the service by issuing `sudo service moonitor-agent start` and 
 `sudo service moonitor-agent stop` respectively.
 
+To install the principal, the process is the same. Just be aware that you'll have to install an InfluxDb instance somewhere and configure the principal to save the metrics there. By default, the principal will try `localhost` port `8086`, as is the default InfluxDb installation. See [InfluxDb documentation](https://influxdb.com/docs/v0.9/introduction/installation.html) on how to install.
+
+## Environment configuration
+Both the agent and the principal provide environment customizable configurations. To change a property's default value, create a file in `/etc/default/moonitor-agent.conf` or `/etc/default/moonitor-principal.conf`.
+
+These are the default values for the principal:
+```
+agent {
+  system_name = "agent-system"
+  port = 2552
+  protocol = "akka.tcp"
+}
+
+restservice {
+  iface = "localhost"
+  port = 8080
+}
+
+influxdb {
+  write_url = "http://localhost:8086/write"
+}
+
+smtp {
+  host = smtp.gmail.com
+  port = 587
+  auth = true
+  use_tls = true
+}
+```
+
+And the only configuration for the agent is where to find the collection strategies:
+```
+plugins.dir = "/usr/lib"
+```
+
+## Hosts configuration
+The principal provides a REST service to configure hosts, the metrics to be collected and alerts.
+
+To add a new host, `POST` to `<principal_domain>:<port>/hosts/<new_host_name>`.
+
+To stop all metrics collection and remove the configuration for a host, `DELETE` to `<principal_domain>:<port>/hosts/<host_to_delete>`.
+
+To start collecting a new metric in a host, `PUT` to `<principal_domain>:<port>/hosts/<host_name>/metrics` with a Json representation of the metric configuration.
+
+To stop collecting a metric in a host, `DELETE` to `<principal_domain>:<port>/hosts/<host_name>/metrics`with a Json representation of the metric id.
+
+To create an alert for a host, `PUT` to `<principal_domain>:<port>/hosts/<host_name>/alerts` with a Json representation of the alert configuration.
+
+To remove an alert configuration, `DELETE` to `<principal_domain>:<port>/hosts/<host_name>/alerts` with a Json representation of the metric id.
+
+Metric id Json example:
+```json
+{
+  "packageName":"com.mooveit.moonitor.collector.strategies",
+  "className":"FreeSpaceStrategy",
+  "metricName":"free_space_strategy",
+  "params":"/"
+}
+```
+
+Metric configuration Json example:
+```json
+{
+  "packageName":"",
+  "metricId":<metric_id>,
+  "frequency":30000
+}
+```
+
+Alert configuration Json example:
+```json
+{
+  "metricId":<metric_id>,
+  "operator":"com.mooveit.moonitor.domain.alerts.Gt",
+  "value":15,
+  "mailTo":"some.mail@example.com"
+}
+```
+
+## Visualization
+To quickly and easily visualize the data from InfluxDb, you can use Grafana, which comes with InfluxDb support out-of-the-box. See [Grafana documentation](http://docs.grafana.org/installation/) on how to install and configure.
+Important: the principal will automatically create a new InfluxDb database for each configured host. For instance, if you configure the host `192.168.1.2` then you will find a database called `metrics-192.168.1.2`.
+
 ## License
-See the LICENSE file for license rights and limitations.
+See the [LICENSE](LICENSE) file for license rights and limitations.
