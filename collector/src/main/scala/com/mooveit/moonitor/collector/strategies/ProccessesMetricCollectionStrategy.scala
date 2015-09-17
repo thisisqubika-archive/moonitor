@@ -2,12 +2,9 @@ package com.mooveit.moonitor.collector.strategies
 
 import scala.util.{Failure, Success, Try}
 
-case class NumberOfProcessesStrategy(status: Char)
-  extends HostMetricCollectionStrategy {
+class NumberOfProcessesStrategy extends HostMetricCollectionStrategy {
 
-  override def collectValue =
-    sigar.getProcList.map(pid =>
-      sigar.getProcState(pid).getState).count(_ == status)
+  override def collectValue = sigar.getProcList.size
 }
 
 case class ProcessStatusStrategy(ptql: String)

@@ -2,7 +2,7 @@ package com.mooveit.moonitor.collector.strategies
 
 class FreeMemoryStrategy extends HostMetricCollectionStrategy {
 
-  override def collectValue = sigar.getMem.getActualFree
+  override def collectValue = sigar.getMem.getFree
 }
 
 class TotalMemoryStrategy extends HostMetricCollectionStrategy {
@@ -12,5 +12,5 @@ class TotalMemoryStrategy extends HostMetricCollectionStrategy {
 
 class UsedMemoryStrategy extends HostMetricCollectionStrategy {
 
-  override def collectValue = sigar.getMem.getActualUsed
+  override def collectValue = sigar.getMem.getUsed
 }

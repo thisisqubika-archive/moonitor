@@ -1,9 +1,8 @@
 package com.mooveit.moonitor.collector.strategies
 
-case class FreeSpaceStrategy(dir: String)
-  extends HostMetricCollectionStrategy {
+case class FreeSpaceStrategy(dir: String) extends HostMetricCollectionStrategy {
 
-  override def collectValue = sigar.getFileSystemUsage(dir).getFree
+  override def collectValue = sigar.getFileSystemUsage(dir).getAvail
 }
 
 case class TotalSpaceStrategy(dir: String)
@@ -12,8 +11,7 @@ case class TotalSpaceStrategy(dir: String)
   override def collectValue = sigar.getFileSystemUsage(dir).getTotal
 }
 
-case class UsedSpaceStrategy(dir: String)
-  extends HostMetricCollectionStrategy {
+case class UsedSpaceStrategy(dir: String) extends HostMetricCollectionStrategy {
 
   override def collectValue = sigar.getFileSystemUsage(dir).getUsed
 }
