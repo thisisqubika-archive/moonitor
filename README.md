@@ -29,8 +29,11 @@ SBT as the building tool.
 sbt-native-packager to easily create installation packages.
 
 ## Building and running
-If you just want to run a single instance from sbt, execute `run` from the
-specific subproject you want to run.
+
+### Requirements
+In order to build and run this project as is, you need Java 8 and [sbt](http://www.scala-sbt.org/). The Java 8 requirement is due to the Typesafe Config library version. If you want to use Java 7, downgrade the config library version with the property defined in `build.sbt` [here](/build.sbt#L10).
+
+If you just want to run a single instance from sbt, execute `run` from the specific subproject you want to run.
 For example:
 ```
 $ sbt
